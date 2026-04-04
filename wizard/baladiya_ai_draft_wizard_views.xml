@@ -8,6 +8,8 @@
                 <group>
                     <field name="request_id" readonly="1"/>
                     <field name="transition_type"/>
+                    <field name="rejection_reason" placeholder="Reason for rejection..."
+                           invisible="transition_type != 'rejection'"/>
                 </group>
                 <group>
                     <button name="action_generate_draft" string="Generate AI Draft"
@@ -18,7 +20,7 @@
                 </group>
                 <field name="ai_draft_body" placeholder="AI will generate a message draft here. You can edit it before sending."/>
                 <footer>
-                    <button name="action_send_message" string="Send to Citizen"
+                    <button name="action_send_and_apply" string="Send &amp; Apply"
                             type="object" class="btn-primary" icon="fa-paper-plane"/>
                     <button special="cancel" string="Cancel" class="btn-secondary"/>
                 </footer>

@@ -24,16 +24,11 @@ DISTRICT_SELECTION = [
 ]
 
 STATE_SELECTION = [
-    ('draft', 'Draft'),
-    ('submitted', 'Submitted'),
+    ('new', 'New'),
     ('under_review', 'Under Review'),
     ('in_progress', 'In Progress'),
-    ('inspection', 'Inspection'),
-    ('pending_approval', 'Pending Approval'),
-    ('approved', 'Approved'),
     ('done', 'Completed'),
     ('rejected', 'Rejected'),
-    ('cancelled', 'Cancelled'),
 ]
 
 
@@ -59,9 +54,8 @@ class BaladiyaServiceRequest(models.Model):
         required=True, tracking=True)
     department_id = fields.Many2one(
         'baladiya.department', string='Department',
-        compute='_compute_department_id', store=True, readonly=True)
+        compute='_compute_department_id', store=True, readonly=False)
     officer_id = fields.Many2one('res.users', string='Assigned Officer', tracking=True)
-    approver_id = fields.Many2one('res.users', string='Approved By', readonly=True)
 
     # --- Details ---
     description = fields.Html(string='Description')
@@ -70,7 +64,7 @@ class BaladiyaServiceRequest(models.Model):
 
     # --- Workflow ---
     state = fields.Selection(
-        STATE_SELECTION, string='Status', default='draft',
+        STATE_SELECTION, string='Status', default='new',
         required=True, tracking=True, group_expand=True)
     priority = fields.Selection([
         ('0', 'Normal'),
@@ -162,7 +156,7 @@ class BaladiyaServiceRequest(models.Model):
     def _compute_sla_status(self):
         today = fields.Date.context_today(self)
         for rec in self:
-            if rec.state in ('done', 'rejected', 'cancelled') or not rec.deadline:
+            if rec.state in ('done', 'rejected') or not rec.deadline:
                 rec.sla_status = False
             elif today > rec.deadline:
                 rec.sla_status = 'overdue'
@@ -205,45 +199,68 @@ class BaladiyaServiceRequest(models.Model):
     # ==================== WORKFLOW ACTIONS ====================
 
     def action_submit(self):
+        """Citizen submits → Under Review. Triggers ALL AI brains at once."""
         for rec in self:
-            if rec.state != 'draft':
-                raise UserError(_('Only draft requests can be submitted.'))
+            if rec.state != 'new':
+                raise UserError(_('Only new requests can be submitted.'))
             rec.write({
-                'state': 'submitted',
+                'state': 'under_review',
                 'submission_date': fields.Date.context_today(self),
             })
             template = self.env.ref('baladiya.mail_template_request_submitted', raise_if_not_found=False)
             if template:
                 template.send_mail(rec.id, force_send=False)
-            # AI Brain 1: Auto-triage (never blocks submission)
+            # AI: Run all 3 brains at once (never block on failure)
             try:
                 rec.action_ai_triage()
             except Exception:
                 pass
+            try:
+                rec.action_ai_generate_insights()
+            except Exception:
+                pass
+            try:
+                if rec.attachment_ids:
+                    rec.action_ai_validate_documents()
+            except Exception:
+                pass
 
-    def action_review(self):
-        self.write({'state': 'under_review'})
-
-    def action_start_progress(self):
+    def action_start_processing(self):
+        """Officer reviewed AI suggestions → starts working on the request."""
         self.write({'state': 'in_progress'})
 
-    def action_start_inspection(self):
-        self.write({'state': 'inspection'})
-
-    def action_request_approval(self):
-        self.write({'state': 'pending_approval'})
-
-    def action_approve(self):
-        for rec in self:
-            rec.write({
-                'state': 'approved',
-                'approver_id': self.env.uid,
-            })
-            template = self.env.ref('baladiya.mail_template_request_approved', raise_if_not_found=False)
-            if template:
-                template.send_mail(rec.id, force_send=False)
+    def action_accept_and_process(self):
+        """Accept AI triage suggestions AND move to In Progress in one click."""
+        self.ensure_one()
+        vals = {'state': 'in_progress'}
+        if self.ai_suggested_priority:
+            vals['priority'] = self.ai_suggested_priority
+        if self.ai_suggested_department_id:
+            vals['department_id'] = self.ai_suggested_department_id.id
+        if self.ai_suggested_officer_id:
+            vals['officer_id'] = self.ai_suggested_officer_id.id
+        self.write(vals)
+        self.message_post(body=_('AI triage accepted. Processing started.'),
+                          message_type='comment', subtype_xmlid='mail.mt_note')
 
     def action_complete(self):
+        """Opens AI Draft wizard pre-set to completion, then completes."""
+        self.ensure_one()
+        return {
+            'name': _('Complete Request — AI Draft Response'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'baladiya.ai.draft.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_request_id': self.id,
+                'default_transition_type': 'completion',
+                'complete_after_send': True,
+            },
+        }
+
+    def action_complete_direct(self):
+        """Actually complete the request (called by wizard or directly)."""
         for rec in self:
             rec.write({
                 'state': 'done',
@@ -254,24 +271,34 @@ class BaladiyaServiceRequest(models.Model):
                 template.send_mail(rec.id, force_send=False)
 
     def action_reject(self):
+        """Opens AI Draft wizard pre-set to rejection."""
         self.ensure_one()
         return {
-            'name': _('Reject Request'),
+            'name': _('Reject Request — AI Draft Response'),
             'type': 'ir.actions.act_window',
-            'res_model': 'baladiya.reject.wizard',
+            'res_model': 'baladiya.ai.draft.wizard',
             'view_mode': 'form',
             'target': 'new',
-            'context': {'default_request_id': self.id},
+            'context': {
+                'default_request_id': self.id,
+                'default_transition_type': 'rejection',
+                'reject_after_send': True,
+            },
         }
 
-    def action_cancel(self):
+    def action_reject_direct(self, reason=''):
+        """Actually reject the request (called by wizard)."""
         for rec in self:
-            if rec.state in ('done', 'cancelled'):
-                raise UserError(_('Cannot cancel a completed or already cancelled request.'))
-            rec.write({'state': 'cancelled'})
+            rec.write({
+                'state': 'rejected',
+                'rejection_reason': reason,
+            })
 
-    def action_reset_to_draft(self):
-        self.write({'state': 'draft', 'rejection_reason': False})
+    def action_reset(self):
+        """Reset rejected request back to new."""
+        self.write({'state': 'new', 'rejection_reason': False,
+                    'ai_triage_done': False, 'ai_doc_validation_done': False,
+                    'ai_summary': False, 'ai_insights_date': False})
 
     def action_view_attachments(self):
         self.ensure_one()
@@ -291,10 +318,9 @@ class BaladiyaServiceRequest(models.Model):
         ai = self.env['baladiya.ai.service']
         result = ai.ai_triage_request(self)
         if result.get('error'):
-            self.message_post(body=_('AI Triage failed: %s') % result['error'],
+            self.message_post(body=_('AI Triage: %s') % result['error'],
                               message_type='comment', subtype_xmlid='mail.mt_note')
             return
-        # Find suggested department
         dept = False
         dept_code = result.get('suggested_department_code', '')
         if dept_code:
@@ -307,32 +333,13 @@ class BaladiyaServiceRequest(models.Model):
             'ai_triage_reasoning': result.get('reasoning', ''),
         })
 
-    def action_accept_ai_triage(self):
-        """Accept AI triage suggestions."""
-        self.ensure_one()
-        vals = {}
-        if self.ai_suggested_priority:
-            vals['priority'] = self.ai_suggested_priority
-        if self.ai_suggested_department_id:
-            vals['department_id'] = self.ai_suggested_department_id.id
-        if self.ai_suggested_officer_id:
-            vals['officer_id'] = self.ai_suggested_officer_id.id
-        if vals:
-            self.write(vals)
-            self.message_post(body=_('AI triage suggestions accepted.'),
-                              message_type='comment', subtype_xmlid='mail.mt_note')
-
-    def action_dismiss_ai_triage(self):
-        """Dismiss AI triage panel."""
-        self.write({'ai_triage_done': False})
-
     def action_ai_validate_documents(self):
         """Brain 2: AI Document Validator."""
         self.ensure_one()
         ai = self.env['baladiya.ai.service']
         result = ai.ai_validate_documents(self)
         if result.get('error'):
-            raise UserError(result['error'])
+            return
         identified = result.get('identified_documents', [])
         identified_text = '\n'.join([
             '- %s → %s (%s)' % (d.get('filename', ''), d.get('likely_type', ''), d.get('matches_requirement', ''))
@@ -354,7 +361,7 @@ class BaladiyaServiceRequest(models.Model):
         ai = self.env['baladiya.ai.service']
         result = ai.ai_summarize_request(self)
         if result.get('error'):
-            raise UserError(result['error'])
+            return
         self.write({
             'ai_summary': (result.get('summary', '') or '')[:250],
             'ai_sentiment': result.get('sentiment', 'neutral'),
@@ -364,7 +371,7 @@ class BaladiyaServiceRequest(models.Model):
         })
 
     def action_ai_draft_response(self):
-        """Brain 3: Open AI Response Drafter wizard."""
+        """Brain 3: Open AI Response Drafter wizard standalone."""
         self.ensure_one()
         return {
             'name': _('AI Response Drafter'),
@@ -384,13 +391,10 @@ class BaladiyaServiceRequest(models.Model):
             result = ai.ai_predict_dashboard()
         except Exception as e:
             result = {'error': str(e)}
-
-        # Store result for the dashboard template
         self.env['ir.config_parameter'].sudo().set_param(
             'baladiya.ai_dashboard_data', json_mod.dumps(result))
         self.env['ir.config_parameter'].sudo().set_param(
             'baladiya.ai_dashboard_date', str(fields.Datetime.now()))
-
         return {
             'type': 'ir.actions.act_url',
             'url': '/baladiya/ai-dashboard',

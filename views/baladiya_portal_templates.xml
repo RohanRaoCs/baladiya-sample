@@ -190,26 +190,26 @@
 
                                 <div class="baladiya-tracking-box my-4">
                                     <small class="text-muted d-block mb-1">Your Tracking Code</small>
-                                    <h2 class="baladiya-tracking-code" t-esc="request.tracking_code"/>
+                                    <h2 class="baladiya-tracking-code" t-esc="sreq.tracking_code"/>
                                     <small class="text-muted">Save this code to track your request status</small>
                                 </div>
 
                                 <table class="table table-sm text-start">
                                     <tr>
                                         <td class="fw-bold">Request Number</td>
-                                        <td t-esc="request.name"/>
+                                        <td t-esc="sreq.name"/>
                                     </tr>
                                     <tr>
                                         <td class="fw-bold">Service</td>
-                                        <td t-esc="request.category_id.name"/>
+                                        <td t-esc="sreq.category_id.name"/>
                                     </tr>
                                     <tr>
                                         <td class="fw-bold">Department</td>
-                                        <td t-esc="request.department_id.name"/>
+                                        <td t-esc="sreq.department_id.name"/>
                                     </tr>
                                     <tr>
                                         <td class="fw-bold">Estimated Processing</td>
-                                        <td><t t-esc="request.category_id.estimated_days"/> working days</td>
+                                        <td><t t-esc="sreq.category_id.estimated_days"/> working days</td>
                                     </tr>
                                 </table>
 

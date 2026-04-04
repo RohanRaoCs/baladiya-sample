@@ -15,8 +15,8 @@
                 <field name="category_id"/>
                 <field name="department_id"/>
                 <field name="officer_id"/>
-                <field name="deadline"/>
-                <field name="fee_paid"/>
+                <field name="ai_summary"/>
+                <field name="ai_sentiment"/>
                 <progressbar field="sla_status"
                     colors='{"on_track": "success", "at_risk": "warning", "overdue": "danger"}'/>
                 <templates>
@@ -34,6 +34,11 @@
                         <div class="text-muted small">
                             <field name="department_id"/>
                         </div>
+                        <t t-if="record.ai_summary.value">
+                            <div class="small fst-italic mt-1 text-primary">
+                                <i class="fa fa-magic"/> <field name="ai_summary"/>
+                            </div>
+                        </t>
                         <footer class="pt-2">
                             <div class="d-flex align-items-center justify-content-between w-100">
                                 <span t-if="record.sla_status.raw_value == 'overdue'"
@@ -43,6 +48,12 @@
                                 <span t-elif="record.sla_status.raw_value == 'on_track'"
                                       class="badge text-bg-success">On Track</span>
                                 <span t-else=""/>
+                                <t t-if="record.ai_sentiment.raw_value">
+                                    <span t-if="record.ai_sentiment.raw_value == 'urgent'"
+                                          class="badge text-bg-danger">Urgent</span>
+                                    <span t-elif="record.ai_sentiment.raw_value == 'frustrated'"
+                                          class="badge text-bg-warning">Frustrated</span>
+                                </t>
                                 <field name="officer_id" widget="many2one_avatar_user"/>
                             </div>
                         </footer>
@@ -67,11 +78,14 @@
                 <field name="department_id"/>
                 <field name="district"/>
                 <field name="state" widget="badge"
-                       decoration-success="state in ('approved','done')"
-                       decoration-info="state in ('submitted','under_review','in_progress')"
-                       decoration-warning="state in ('inspection','pending_approval')"
-                       decoration-danger="state in ('rejected','cancelled')"/>
+                       decoration-success="state == 'done'"
+                       decoration-info="state in ('new','under_review','in_progress')"
+                       decoration-danger="state == 'rejected'"/>
                 <field name="priority" widget="priority"/>
+                <field name="ai_sentiment" widget="badge"
+                       decoration-danger="ai_sentiment == 'urgent'"
+                       decoration-warning="ai_sentiment == 'frustrated'"
+                       optional="show"/>
                 <field name="officer_id" widget="many2one_avatar_user"/>
                 <field name="submission_date"/>
                 <field name="deadline"/>
@@ -79,8 +93,6 @@
                        decoration-success="sla_status == 'on_track'"
                        decoration-warning="sla_status == 'at_risk'"
                        decoration-danger="sla_status == 'overdue'"/>
-                <field name="fee_amount" string="Fee (AED)"/>
-                <field name="fee_paid"/>
             </list>
         </field>
     </record>
@@ -92,45 +104,47 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name="action_submit" string="Submit"
+                    <!-- NEW: Submit -->
+                    <button name="action_submit" string="Submit Request"
                             type="object" class="btn-primary"
-                            invisible="state != 'draft'"/>
-                    <button name="action_review" string="Start Review"
-                            type="object" class="btn-primary"
-                            invisible="state != 'submitted'"/>
-                    <button name="action_start_progress" string="Start Processing"
-                            type="object" class="btn-primary"
-                            invisible="state != 'under_review'"/>
-                    <button name="action_start_inspection" string="Send to Inspection"
-                            type="object"
-                            invisible="state != 'in_progress'"/>
-                    <button name="action_request_approval" string="Request Approval"
-                            type="object" class="btn-primary"
-                            invisible="state not in ('in_progress', 'inspection')"/>
-                    <button name="action_approve" string="Approve"
+                            icon="fa-paper-plane"
+                            invisible="state != 'new'"/>
+
+                    <!-- UNDER REVIEW: Accept AI + Start Processing -->
+                    <button name="action_accept_and_process"
+                            string="Accept AI &amp; Start Processing"
                             type="object" class="btn-success"
-                            invisible="state != 'pending_approval'"
-                            groups="baladiya.group_baladiya_manager"/>
-                    <button name="action_complete" string="Mark Complete"
-                            type="object" class="btn-success"
-                            invisible="state != 'approved'"/>
-                    <button name="action_reject" string="Reject"
-                            type="object" class="btn-danger"
-                            invisible="state in ('draft','done','rejected','cancelled')"
-                            groups="baladiya.group_baladiya_manager"/>
-                    <button name="action_cancel" string="Cancel"
-                            type="object"
-                            invisible="state in ('done','cancelled')"/>
-                    <button name="action_reset_to_draft" string="Reset to Draft"
-                            type="object"
-                            invisible="state not in ('rejected','cancelled')"/>
-                    <button name="action_ai_draft_response" string="AI Draft Response"
-                            type="object" class="btn-warning"
-                            icon="fa-magic"
-                            invisible="state in ('draft','done','cancelled')"
+                            icon="fa-check"
+                            invisible="state != 'under_review'"
                             groups="baladiya.group_baladiya_officer"/>
+                    <button name="action_start_processing"
+                            string="Override &amp; Start Processing"
+                            type="object"
+                            invisible="state != 'under_review'"
+                            groups="baladiya.group_baladiya_officer"/>
+
+                    <!-- IN PROGRESS: Complete or Reject (both open AI wizard) -->
+                    <button name="action_complete"
+                            string="Complete (AI Draft)"
+                            type="object" class="btn-success"
+                            icon="fa-check-circle"
+                            invisible="state != 'in_progress'"
+                            groups="baladiya.group_baladiya_officer"/>
+                    <button name="action_reject"
+                            string="Reject (AI Draft)"
+                            type="object" class="btn-danger"
+                            icon="fa-times-circle"
+                            invisible="state != 'in_progress'"
+                            groups="baladiya.group_baladiya_manager"/>
+
+                    <!-- REJECTED: Reset -->
+                    <button name="action_reset"
+                            string="Reset to New"
+                            type="object"
+                            invisible="state != 'rejected'"/>
+
                     <field name="state" widget="statusbar"
-                           statusbar_visible="draft,submitted,under_review,in_progress,pending_approval,approved,done"/>
+                           statusbar_visible="new,under_review,in_progress,done"/>
                 </header>
                 <sheet>
                     <!-- Overdue ribbon -->
@@ -145,20 +159,19 @@
                         </button>
                     </div>
                     <div class="oe_title">
-                        <h1>
-                            <field name="name" readonly="1"/>
-                        </h1>
+                        <h1><field name="name" readonly="1"/></h1>
                         <h3 class="text-muted">
                             Tracking: <field name="tracking_code" readonly="1"/>
                         </h3>
                     </div>
-                    <!-- AI TRIAGE PANEL (Brain 1) -->
+
+                    <!-- ============ AI TRIAGE PANEL (Brain 1) ============ -->
                     <div class="alert alert-info" role="alert"
-                         invisible="not ai_triage_done"
+                         invisible="not ai_triage_done or state not in ('under_review',)"
                          groups="baladiya.group_baladiya_officer">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h5 class="mb-0"><i class="fa fa-robot"/> AI Triage Recommendation</h5>
-                            <span class="badge text-bg-primary">
+                            <h5 class="mb-0"><i class="fa fa-magic" title="AI Triage"/> AI Triage Recommendation</h5>
+                            <span class="badge text-bg-primary fs-6">
                                 Confidence: <field name="ai_triage_confidence" nolabel="1"/>%
                             </span>
                         </div>
@@ -176,20 +189,13 @@
                                 <field name="ai_suggested_officer_id" nolabel="1"/>
                             </div>
                         </div>
-                        <div class="mb-2">
+                        <div>
                             <strong>AI Reasoning:</strong>
                             <field name="ai_triage_reasoning" nolabel="1"/>
                         </div>
-                        <div class="d-flex gap-2">
-                            <button name="action_accept_ai_triage" string="Accept AI Suggestions"
-                                    type="object" class="btn btn-sm btn-success"
-                                    icon="fa-check"/>
-                            <button name="action_dismiss_ai_triage" string="Dismiss"
-                                    type="object" class="btn btn-sm btn-secondary"
-                                    icon="fa-times"/>
-                        </div>
                     </div>
 
+                    <!-- ============ MAIN INFO ============ -->
                     <group>
                         <group string="Request Information">
                             <field name="citizen_id"/>
@@ -201,7 +207,6 @@
                         </group>
                         <group string="Assignment &amp; Dates">
                             <field name="officer_id"/>
-                            <field name="approver_id" invisible="state not in ('approved','done')"/>
                             <field name="submission_date"/>
                             <field name="deadline"/>
                             <field name="completion_date" invisible="state != 'done'"/>
@@ -209,101 +214,89 @@
                                    decoration-success="sla_status == 'on_track'"
                                    decoration-warning="sla_status == 'at_risk'"
                                    decoration-danger="sla_status == 'overdue'"/>
-                        </group>
-                    </group>
-                    <group>
-                        <group string="Financial">
                             <field name="fee_amount"/>
                             <field name="fee_paid"/>
                         </group>
                     </group>
-                    <notebook>
-                        <page string="Request Details" name="details">
-                            <field name="description" placeholder="Describe the service request..."/>
-                        </page>
-                        <page string="Documents" name="documents">
-                            <field name="attachment_ids" widget="many2many_binary"/>
-                            <!-- AI Document Validation (Brain 2) -->
-                            <div groups="baladiya.group_baladiya_officer" class="mt-3">
-                                <button name="action_ai_validate_documents" string="Validate Documents with AI"
-                                        type="object" class="btn btn-sm btn-warning mb-2"
-                                        icon="fa-magic"
-                                        invisible="state == 'draft'"/>
-                                <div invisible="not ai_doc_validation_done"
-                                     class="alert alert-secondary">
-                                    <h6><i class="fa fa-check-circle"/> AI Document Assessment</h6>
-                                    <div class="row">
-                                        <div class="col-md-3">
-                                            <strong>Completeness:</strong>
-                                            <field name="ai_doc_completeness" nolabel="1" widget="progressbar"/>
-                                        </div>
-                                    </div>
-                                    <div class="row mt-2">
-                                        <div class="col-md-6">
-                                            <strong>Identified:</strong>
-                                            <field name="ai_doc_identified" nolabel="1"/>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <strong>Missing:</strong>
-                                            <field name="ai_doc_missing" nolabel="1"
-                                                   class="text-danger"/>
-                                        </div>
-                                    </div>
-                                    <div class="mt-2">
-                                        <strong>Assessment:</strong>
-                                        <field name="ai_doc_assessment" nolabel="1"/>
-                                    </div>
-                                </div>
+
+                    <!-- ============ DESCRIPTION ============ -->
+                    <group string="Description">
+                        <field name="description" nolabel="1"
+                               placeholder="Describe the service request..."/>
+                    </group>
+
+                    <!-- ============ AI INSIGHTS PANEL (Brain 6) ============ -->
+                    <div class="alert alert-warning" role="alert"
+                         invisible="not ai_summary"
+                         groups="baladiya.group_baladiya_officer">
+                        <h5 class="mb-2"><i class="fa fa-magic" title="AI Insights"/> AI Insights</h5>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <strong>Summary:</strong> <field name="ai_summary" nolabel="1"/>
                             </div>
-                        </page>
-                        <page string="Internal Notes" name="internal"
-                              groups="baladiya.group_baladiya_officer">
-                            <field name="internal_notes" placeholder="Internal notes for staff only..."/>
-                        </page>
-                        <page string="Citizen Feedback" name="feedback"
-                              invisible="state != 'done'">
-                            <group>
-                                <field name="citizen_rating" widget="priority"/>
-                                <field name="citizen_feedback"/>
-                            </group>
-                        </page>
-                        <page string="AI Insights" name="ai_insights"
-                              groups="baladiya.group_baladiya_officer">
-                            <div class="mb-3">
-                                <button name="action_ai_generate_insights"
-                                        string="Generate AI Insights"
-                                        type="object" class="btn btn-warning"
-                                        icon="fa-magic"
-                                        invisible="state == 'draft'"/>
-                                <span class="text-muted ms-2" invisible="not ai_insights_date">
-                                    Last generated: <field name="ai_insights_date" nolabel="1" widget="datetime"/>
-                                </span>
+                            <div class="col-md-4">
+                                <strong>Sentiment:</strong>
+                                <field name="ai_sentiment" nolabel="1" widget="badge"
+                                       decoration-danger="ai_sentiment in ('frustrated','urgent')"
+                                       decoration-success="ai_sentiment == 'neutral'"/>
                             </div>
-                            <div invisible="not ai_summary">
-                                <group>
-                                    <group>
-                                        <field name="ai_summary"/>
-                                        <field name="ai_sentiment" widget="badge"
-                                               decoration-danger="ai_sentiment == 'frustrated'"
-                                               decoration-warning="ai_sentiment == 'urgent'"
-                                               decoration-success="ai_sentiment == 'neutral'"/>
-                                    </group>
-                                </group>
-                                <group string="Detected Patterns">
-                                    <field name="ai_patterns" nolabel="1"/>
-                                </group>
-                                <group string="Recommended Action">
-                                    <field name="ai_recommended_action" nolabel="1"/>
-                                </group>
+                        </div>
+                        <div class="mt-2">
+                            <strong>Patterns:</strong> <field name="ai_patterns" nolabel="1"/>
+                        </div>
+                        <div class="mt-2">
+                            <strong>Recommended Action:</strong> <field name="ai_recommended_action" nolabel="1"/>
+                        </div>
+                    </div>
+
+                    <!-- ============ DOCUMENTS + AI DOC VALIDATION (Brain 2) ============ -->
+                    <group string="Documents">
+                        <field name="attachment_ids" widget="many2many_binary" nolabel="1"/>
+                    </group>
+                    <div class="alert alert-secondary" role="alert"
+                         invisible="not ai_doc_validation_done"
+                         groups="baladiya.group_baladiya_officer">
+                        <h6><i class="fa fa-magic" title="AI Doc Check"/> AI Document Check — Completeness: <field name="ai_doc_completeness" nolabel="1"/>%</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Identified:</strong>
+                                <field name="ai_doc_identified" nolabel="1"/>
                             </div>
-                        </page>
-                        <page string="Rejection" name="rejection"
-                              invisible="state != 'rejected'">
-                            <group>
-                                <field name="rejection_reason"/>
-                            </group>
-                        </page>
-                    </notebook>
+                            <div class="col-md-6">
+                                <strong>Missing:</strong>
+                                <field name="ai_doc_missing" nolabel="1" class="text-danger"/>
+                            </div>
+                        </div>
+                        <div class="mt-1">
+                            <strong>Assessment:</strong> <field name="ai_doc_assessment" nolabel="1"/>
+                        </div>
+                    </div>
+
+                    <!-- ============ REJECTION REASON ============ -->
+                    <div class="alert alert-danger" role="alert"
+                         invisible="state != 'rejected'">
+                        <h6><i class="fa fa-times-circle" title="Rejection"/> Rejection Reason</h6>
+                        <field name="rejection_reason" nolabel="1"/>
+                    </div>
+
+                    <!-- ============ CITIZEN FEEDBACK (only when done) ============ -->
+                    <group string="Citizen Feedback" invisible="state != 'done'">
+                        <group>
+                            <field name="citizen_rating" widget="priority"/>
+                            <field name="citizen_feedback"/>
+                        </group>
+                    </group>
+
+                    <!-- ============ INTERNAL NOTES ============ -->
+                    <group string="Internal Notes" groups="baladiya.group_baladiya_officer">
+                        <field name="internal_notes" nolabel="1"
+                               placeholder="Internal notes for staff only..."/>
+                    </group>
+
+                    <!-- Hidden fields for AI -->
+                    <field name="ai_triage_done" invisible="1"/>
+                    <field name="ai_doc_validation_done" invisible="1"/>
+                    <field name="ai_insights_date" invisible="1"/>
                 </sheet>
                 <chatter/>
             </form>
@@ -330,11 +323,9 @@
                 <filter string="At Risk" name="at_risk"
                         domain="[('sla_status', '=', 'at_risk')]"/>
                 <separator/>
-                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
-                <filter string="Submitted" name="submitted" domain="[('state', '=', 'submitted')]"/>
+                <filter string="New" name="new" domain="[('state', '=', 'new')]"/>
                 <filter string="Under Review" name="under_review" domain="[('state', '=', 'under_review')]"/>
                 <filter string="In Progress" name="in_progress" domain="[('state', '=', 'in_progress')]"/>
-                <filter string="Pending Approval" name="pending_approval" domain="[('state', '=', 'pending_approval')]"/>
                 <filter string="Completed" name="done" domain="[('state', '=', 'done')]"/>
                 <filter string="Rejected" name="rejected" domain="[('state', '=', 'rejected')]"/>
                 <separator/>
@@ -344,8 +335,6 @@
                     <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
                     <filter string="District" name="group_district" context="{'group_by': 'district'}"/>
                     <filter string="Priority" name="group_priority" context="{'group_by': 'priority'}"/>
-                    <filter string="Officer" name="group_officer" context="{'group_by': 'officer_id'}"/>
-                    <filter string="Submission Month" name="group_month" context="{'group_by': 'submission_date:month'}"/>
                 </group>
             </search>
         </field>
@@ -403,7 +392,6 @@
         <field name="res_model">baladiya.service.request</field>
         <field name="view_mode">kanban,list,form,graph,pivot</field>
         <field name="search_view_id" ref="view_service_request_search"/>
-        <field name="context">{'search_default_my_assigned': 0}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 No service requests yet
@@ -412,7 +400,6 @@
         </field>
     </record>
 
-    <!-- Dashboard action with graph as default -->
     <record id="action_service_request_dashboard" model="ir.actions.act_window">
         <field name="name">Dashboard</field>
         <field name="res_model">baladiya.service.request</field>

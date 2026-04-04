@@ -94,7 +94,7 @@ class BaladiyaPortal(CustomerPortal):
         service_request.sudo().action_submit()
 
         return request.render('baladiya.portal_service_submitted', {
-            'request': service_request,
+            'sreq': service_request,
             'page_name': 'service_submitted',
         })
 
@@ -120,13 +120,9 @@ class BaladiyaPortal(CustomerPortal):
             return request.redirect('/my/requests')
 
         stages = [
-            ('draft', 'Draft'),
-            ('submitted', 'Submitted'),
-            ('under_review', 'Under Review'),
-            ('in_progress', 'In Progress'),
-            ('inspection', 'Inspection'),
-            ('pending_approval', 'Pending Approval'),
-            ('approved', 'Approved'),
+            ('new', 'Received'),
+            ('under_review', 'AI Review'),
+            ('in_progress', 'Processing'),
             ('done', 'Completed'),
         ]
         return request.render('baladiya.portal_request_detail', {
@@ -166,13 +162,9 @@ class BaladiyaPortal(CustomerPortal):
                 [('tracking_code', '=', tracking_code)], limit=1)
 
         stages = [
-            ('draft', 'Draft'),
-            ('submitted', 'Submitted'),
-            ('under_review', 'Under Review'),
-            ('in_progress', 'In Progress'),
-            ('inspection', 'Inspection'),
-            ('pending_approval', 'Pending Approval'),
-            ('approved', 'Approved'),
+            ('new', 'Received'),
+            ('under_review', 'AI Review'),
+            ('in_progress', 'Processing'),
             ('done', 'Completed'),
         ]
         return request.render('baladiya.portal_track_result', {
