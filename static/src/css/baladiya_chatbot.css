@@ -1,0 +1,173 @@
+/* ==================== BALADIYA AI CHATBOT ==================== */
+
+.baladiya-chat-bubble {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #1565C0;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(21, 101, 192, 0.4);
+    z-index: 9999;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.baladiya-chat-bubble:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 24px rgba(21, 101, 192, 0.5);
+}
+
+.baladiya-chat-window {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 380px;
+    height: 520px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.baladiya-chat-header {
+    background: #1565C0;
+    color: #fff;
+    padding: 14px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+}
+
+.baladiya-chat-close {
+    cursor: pointer;
+    opacity: 0.8;
+    font-size: 18px;
+}
+
+.baladiya-chat-close:hover {
+    opacity: 1;
+}
+
+.baladiya-chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    background: #f8f9fa;
+}
+
+.baladiya-chat-msg {
+    margin-bottom: 12px;
+    display: flex;
+}
+
+.baladiya-chat-msg.user {
+    justify-content: flex-end;
+}
+
+.baladiya-chat-msg.bot {
+    justify-content: flex-start;
+}
+
+.baladiya-chat-msg-content {
+    max-width: 80%;
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.5;
+    word-wrap: break-word;
+}
+
+.baladiya-chat-msg.user .baladiya-chat-msg-content {
+    background: #1565C0;
+    color: #fff;
+    border-bottom-right-radius: 4px;
+}
+
+.baladiya-chat-msg.bot .baladiya-chat-msg-content {
+    background: #e3f2fd;
+    color: #333;
+    border-bottom-left-radius: 4px;
+}
+
+.baladiya-chat-input-area {
+    display: flex;
+    padding: 12px;
+    border-top: 1px solid #e0e0e0;
+    background: #fff;
+}
+
+.baladiya-chat-input-area input {
+    flex: 1;
+    border: 1px solid #e0e0e0;
+    border-radius: 24px;
+    padding: 10px 16px;
+    font-size: 14px;
+    outline: none;
+}
+
+.baladiya-chat-input-area input:focus {
+    border-color: #1565C0;
+}
+
+.baladiya-chat-input-area button {
+    background: #1565C0;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    margin-left: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.baladiya-chat-input-area button:hover {
+    background: #0D47A1;
+}
+
+/* Typing Indicator */
+.typing-indicator .baladiya-chat-msg-content {
+    display: flex;
+    gap: 4px;
+    padding: 14px 18px;
+}
+
+.typing-indicator .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #90CAF9;
+    animation: dotPulse 1.4s infinite ease-in-out;
+}
+
+.typing-indicator .dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator .dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes dotPulse {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+    40% { transform: scale(1); opacity: 1; }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .baladiya-chat-window {
+        width: calc(100vw - 16px);
+        height: calc(100vh - 100px);
+        bottom: 8px;
+        right: 8px;
+        border-radius: 12px;
+    }
+}

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="config_openai_api_key" model="ir.config_parameter">
+        <field name="key">baladiya.openai_api_key</field>
+        <field name="value">YOUR_API_KEY_HERE</field>
+    </record>
+    <record id="config_openai_model" model="ir.config_parameter">
+        <field name="key">baladiya.openai_model</field>
+        <field name="value">gpt-4o-mini</field>
+    </record>
+</odoo>

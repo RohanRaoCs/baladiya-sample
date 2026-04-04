@@ -21,6 +21,14 @@
               action="action_service_request_dashboard"
               sequence="20"/>
 
+    <!-- AI Dashboard -->
+    <menuitem id="menu_ai_dashboard"
+              name="AI Dashboard"
+              parent="menu_baladiya_root"
+              action="action_ai_dashboard_server"
+              sequence="25"
+              groups="group_baladiya_officer"/>
+
     <!-- Configuration -->
     <menuitem id="menu_configuration"
               name="Configuration"

@@ -115,6 +115,34 @@ class BaladiyaServiceRequest(models.Model):
     internal_notes = fields.Html(string='Internal Notes')
     rejection_reason = fields.Text(string='Rejection Reason', readonly=True)
 
+    # --- AI Brain 1: Triage ---
+    ai_triage_done = fields.Boolean(default=False)
+    ai_suggested_priority = fields.Selection([
+        ('0', 'Normal'), ('2', 'High'), ('3', 'Urgent'),
+    ], string='AI Suggested Priority')
+    ai_suggested_department_id = fields.Many2one('baladiya.department', string='AI Suggested Department')
+    ai_suggested_officer_id = fields.Many2one('res.users', string='AI Suggested Officer')
+    ai_triage_confidence = fields.Float(string='AI Confidence %', digits=(5, 1))
+    ai_triage_reasoning = fields.Text(string='AI Triage Reasoning')
+
+    # --- AI Brain 2: Document Validation ---
+    ai_doc_validation_done = fields.Boolean(default=False)
+    ai_doc_completeness = fields.Float(string='Document Completeness %', digits=(5, 1))
+    ai_doc_identified = fields.Text(string='AI Identified Documents')
+    ai_doc_missing = fields.Text(string='AI Missing Documents')
+    ai_doc_assessment = fields.Text(string='AI Document Assessment')
+
+    # --- AI Brain 6: Insights ---
+    ai_summary = fields.Char(string='AI Summary', size=250)
+    ai_sentiment = fields.Selection([
+        ('frustrated', 'Frustrated'),
+        ('neutral', 'Neutral'),
+        ('urgent', 'Urgent'),
+    ], string='AI Sentiment')
+    ai_patterns = fields.Text(string='AI Detected Patterns')
+    ai_recommended_action = fields.Text(string='AI Recommended Action')
+    ai_insights_date = fields.Datetime(string='AI Insights Generated')
+
     # ==================== COMPUTED FIELDS ====================
 
     @api.depends('category_id')
@@ -187,6 +215,11 @@ class BaladiyaServiceRequest(models.Model):
             template = self.env.ref('baladiya.mail_template_request_submitted', raise_if_not_found=False)
             if template:
                 template.send_mail(rec.id, force_send=False)
+            # AI Brain 1: Auto-triage (never blocks submission)
+            try:
+                rec.action_ai_triage()
+            except Exception:
+                pass
 
     def action_review(self):
         self.write({'state': 'under_review'})
@@ -248,4 +281,118 @@ class BaladiyaServiceRequest(models.Model):
             'res_model': 'ir.attachment',
             'view_mode': 'list,form',
             'domain': [('id', 'in', self.attachment_ids.ids)],
+        }
+
+    # ==================== AI ACTIONS ====================
+
+    def action_ai_triage(self):
+        """Brain 1: AI Auto-Triage & Routing."""
+        self.ensure_one()
+        ai = self.env['baladiya.ai.service']
+        result = ai.ai_triage_request(self)
+        if result.get('error'):
+            self.message_post(body=_('AI Triage failed: %s') % result['error'],
+                              message_type='comment', subtype_xmlid='mail.mt_note')
+            return
+        # Find suggested department
+        dept = False
+        dept_code = result.get('suggested_department_code', '')
+        if dept_code:
+            dept = self.env['baladiya.department'].search([('code', '=', dept_code)], limit=1)
+        self.write({
+            'ai_triage_done': True,
+            'ai_suggested_priority': result.get('suggested_priority', '0'),
+            'ai_suggested_department_id': dept.id if dept else False,
+            'ai_triage_confidence': result.get('confidence', 0),
+            'ai_triage_reasoning': result.get('reasoning', ''),
+        })
+
+    def action_accept_ai_triage(self):
+        """Accept AI triage suggestions."""
+        self.ensure_one()
+        vals = {}
+        if self.ai_suggested_priority:
+            vals['priority'] = self.ai_suggested_priority
+        if self.ai_suggested_department_id:
+            vals['department_id'] = self.ai_suggested_department_id.id
+        if self.ai_suggested_officer_id:
+            vals['officer_id'] = self.ai_suggested_officer_id.id
+        if vals:
+            self.write(vals)
+            self.message_post(body=_('AI triage suggestions accepted.'),
+                              message_type='comment', subtype_xmlid='mail.mt_note')
+
+    def action_dismiss_ai_triage(self):
+        """Dismiss AI triage panel."""
+        self.write({'ai_triage_done': False})
+
+    def action_ai_validate_documents(self):
+        """Brain 2: AI Document Validator."""
+        self.ensure_one()
+        ai = self.env['baladiya.ai.service']
+        result = ai.ai_validate_documents(self)
+        if result.get('error'):
+            raise UserError(result['error'])
+        identified = result.get('identified_documents', [])
+        identified_text = '\n'.join([
+            '- %s → %s (%s)' % (d.get('filename', ''), d.get('likely_type', ''), d.get('matches_requirement', ''))
+            for d in identified
+        ]) if isinstance(identified, list) else str(identified)
+        missing = result.get('missing_documents', [])
+        missing_text = '\n'.join(['- %s' % m for m in missing]) if isinstance(missing, list) else str(missing)
+        self.write({
+            'ai_doc_validation_done': True,
+            'ai_doc_completeness': result.get('completeness_score', 0),
+            'ai_doc_identified': identified_text,
+            'ai_doc_missing': missing_text,
+            'ai_doc_assessment': result.get('assessment', ''),
+        })
+
+    def action_ai_generate_insights(self):
+        """Brain 6: AI Summarizer & Insights."""
+        self.ensure_one()
+        ai = self.env['baladiya.ai.service']
+        result = ai.ai_summarize_request(self)
+        if result.get('error'):
+            raise UserError(result['error'])
+        self.write({
+            'ai_summary': (result.get('summary', '') or '')[:250],
+            'ai_sentiment': result.get('sentiment', 'neutral'),
+            'ai_patterns': result.get('patterns', ''),
+            'ai_recommended_action': result.get('recommended_action', ''),
+            'ai_insights_date': fields.Datetime.now(),
+        })
+
+    def action_ai_draft_response(self):
+        """Brain 3: Open AI Response Drafter wizard."""
+        self.ensure_one()
+        return {
+            'name': _('AI Response Drafter'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'baladiya.ai.draft.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_request_id': self.id},
+        }
+
+    @api.model
+    def action_open_ai_dashboard(self):
+        """Brain 4: Compute AI predictions and return dashboard action."""
+        ai = self.env['baladiya.ai.service']
+        import json as json_mod
+        try:
+            result = ai.ai_predict_dashboard()
+        except Exception as e:
+            result = {'error': str(e)}
+
+        # Store result for the dashboard template
+        self.env['ir.config_parameter'].sudo().set_param(
+            'baladiya.ai_dashboard_data', json_mod.dumps(result))
+        self.env['ir.config_parameter'].sudo().set_param(
+            'baladiya.ai_dashboard_date', str(fields.Datetime.now()))
+
+        return {
+            'type': 'ir.actions.act_url',
+            'url': '/baladiya/ai-dashboard',
+            'target': 'self',
         }

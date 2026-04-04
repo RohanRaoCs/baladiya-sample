@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Server action to open AI Dashboard page -->
+    <record id="action_ai_dashboard_server" model="ir.actions.server">
+        <field name="name">AI Predictive Dashboard</field>
+        <field name="model_id" ref="model_baladiya_service_request"/>
+        <field name="state">code</field>
+        <field name="code">action = model.action_open_ai_dashboard()</field>
+    </record>
+
+    <!-- AI Dashboard Template -->
+    <template id="ai_dashboard_template" name="AI Predictive Dashboard">
+        <t t-call="portal.portal_layout">
+            <div class="baladiya-portal">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="baladiya-heading mb-0">
+                        <i class="fa fa-brain"/> AI Predictive Dashboard
+                    </h2>
+                    <div>
+                        <a href="/baladiya/ai-dashboard/refresh" class="btn btn-warning">
+                            <i class="fa fa-magic"/> Refresh AI Predictions
+                        </a>
+                        <a href="/odoo/baladiya" class="btn btn-secondary ms-2">
+                            <i class="fa fa-arrow-left"/> Back to Baladiya
+                        </a>
+                    </div>
+                </div>
+
+                <t t-if="date_str">
+                    <p class="text-muted">Last updated: <t t-esc="date_str"/></p>
+                </t>
+
+                <!-- Stat Cards -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <div class="card text-center shadow-sm border-primary">
+                            <div class="card-body">
+                                <h3 class="text-primary" t-esc="total_active"/>
+                                <small class="text-muted">Active Requests</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center shadow-sm border-danger">
+                            <div class="card-body">
+                                <h3 class="text-danger" t-esc="total_overdue"/>
+                                <small class="text-muted">Overdue</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center shadow-sm border-success">
+                            <div class="card-body">
+                                <h3 class="text-success" t-esc="total_completed"/>
+                                <small class="text-muted">Completed</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center shadow-sm"
+                             t-att-class="'border-' + ('danger' if data.get('overall_health') == 'critical' else ('warning' if data.get('overall_health') == 'warning' else 'success'))">
+                            <div class="card-body">
+                                <h3 t-att-class="'text-' + ('danger' if data.get('overall_health') == 'critical' else ('warning' if data.get('overall_health') == 'warning' else 'success'))"
+                                    t-esc="(data.get('overall_health') or 'N/A').upper()"/>
+                                <small class="text-muted">System Health</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <t t-if="data.get('error')">
+                    <div class="alert alert-warning">
+                        <i class="fa fa-exclamation-triangle"/> <t t-esc="data.get('error')"/>
+                        <br/>Click "Refresh AI Predictions" to generate new predictions.
+                    </div>
+                </t>
+
+                <div class="row g-4">
+                    <!-- SLA Risk Requests -->
+                    <div class="col-md-6">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-header bg-danger text-white">
+                                <i class="fa fa-warning"/> SLA Risk Requests
+                            </div>
+                            <div class="card-body">
+                                <t t-if="data.get('sla_risk_requests')">
+                                    <table class="table table-sm">
+                                        <thead><tr><th>Request</th><th>Risk Reason</th></tr></thead>
+                                        <tbody>
+                                            <t t-foreach="data.get('sla_risk_requests', [])" t-as="risk">
+                                                <tr>
+                                                    <td><strong t-esc="risk.get('name', '')"/></td>
+                                                    <td t-esc="risk.get('reason', '')"/>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </t>
+                                <t t-else="">
+                                    <p class="text-muted text-center py-3">No SLA risks detected</p>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottleneck Analysis -->
+                    <div class="col-md-6">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-header bg-warning text-dark">
+                                <i class="fa fa-compress"/> Bottleneck Analysis
+                            </div>
+                            <div class="card-body">
+                                <t t-if="data.get('bottleneck_department')">
+                                    <div class="alert alert-warning">
+                                        <strong>Bottleneck:</strong>
+                                        <t t-esc="data['bottleneck_department'].get('name', '')"/>
+                                        <br/>
+                                        <small t-esc="data['bottleneck_department'].get('reason', '')"/>
+                                    </div>
+                                    <p><strong>Suggestion:</strong>
+                                        <t t-esc="data['bottleneck_department'].get('suggestion', '')"/>
+                                    </p>
+                                </t>
+                                <t t-if="data.get('busiest_department')">
+                                    <div class="alert alert-info">
+                                        <strong>Busiest:</strong>
+                                        <t t-esc="data['busiest_department'].get('name', '')"/>
+                                        <br/>
+                                        <small t-esc="data['busiest_department'].get('reason', '')"/>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Recommendations -->
+                <t t-if="data.get('recommendations')">
+                    <div class="card shadow-sm mt-4">
+                        <div class="card-header" style="background:#1565C0;color:#fff;">
+                            <i class="fa fa-lightbulb-o"/> AI Recommendations
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush">
+                                <t t-foreach="data.get('recommendations', [])" t-as="rec">
+                                    <li class="list-group-item">
+                                        <i class="fa fa-chevron-right text-primary me-2"/>
+                                        <t t-esc="rec"/>
+                                    </li>
+                                </t>
+                            </ul>
+                        </div>
+                    </div>
+                </t>
+
+            </div>
+        </t>
+    </template>
+
+</odoo>

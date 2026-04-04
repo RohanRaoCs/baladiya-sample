@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_chatbot_widget" name="Baladiya Chatbot"
+              inherit_id="web.frontend_layout">
+        <xpath expr="//div[@id='wrapwrap']" position="inside">
+            <div id="baladiya-chatbot-root">
+                <!-- Chat Bubble -->
+                <div class="baladiya-chat-bubble" id="baladiyaChatBubble">
+                    <i class="fa fa-comments fa-lg"/>
+                </div>
+                <!-- Chat Window -->
+                <div class="baladiya-chat-window" id="baladiyaChatWindow" style="display:none;">
+                    <div class="baladiya-chat-header">
+                        <span class="fw-bold"><i class="fa fa-magic"/> Baladiya AI Assistant</span>
+                        <span class="baladiya-chat-close" id="baladiyaChatClose"><i class="fa fa-times"/></span>
+                    </div>
+                    <div class="baladiya-chat-messages" id="baladiyaChatMessages">
+                        <div class="baladiya-chat-msg bot">
+                            <div class="baladiya-chat-msg-content">
+                                Hello! I'm the Baladiya AI Assistant. I can help you find services, track your requests, or answer questions about municipal services. How can I help you today?
+                            </div>
+                        </div>
+                    </div>
+                    <div class="baladiya-chat-input-area">
+                        <input type="text" id="baladiyaChatInput"
+                               placeholder="Type your message..."
+                               autocomplete="off"/>
+                        <button id="baladiyaChatSend" type="button">
+                            <i class="fa fa-paper-plane"/>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+</odoo>

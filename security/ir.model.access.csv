@@ -12,3 +12,5 @@ access_request_manager,baladiya.service.request.manager,model_baladiya_service_r
 access_request_portal,baladiya.service.request.portal,model_baladiya_service_request,base.group_portal,1,1,1,0
 access_reject_wizard_officer,baladiya.reject.wizard.officer,model_baladiya_reject_wizard,group_baladiya_officer,1,1,1,0
 access_reject_wizard_manager,baladiya.reject.wizard.manager,model_baladiya_reject_wizard,group_baladiya_manager,1,1,1,1
+access_ai_draft_wizard_officer,baladiya.ai.draft.wizard.officer,model_baladiya_ai_draft_wizard,group_baladiya_officer,1,1,1,0
+access_ai_draft_wizard_manager,baladiya.ai.draft.wizard.manager,model_baladiya_ai_draft_wizard,group_baladiya_manager,1,1,1,1

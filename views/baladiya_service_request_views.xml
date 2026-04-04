@@ -124,6 +124,11 @@
                     <button name="action_reset_to_draft" string="Reset to Draft"
                             type="object"
                             invisible="state not in ('rejected','cancelled')"/>
+                    <button name="action_ai_draft_response" string="AI Draft Response"
+                            type="object" class="btn-warning"
+                            icon="fa-magic"
+                            invisible="state in ('draft','done','cancelled')"
+                            groups="baladiya.group_baladiya_officer"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="draft,submitted,under_review,in_progress,pending_approval,approved,done"/>
                 </header>
@@ -147,6 +152,44 @@
                             Tracking: <field name="tracking_code" readonly="1"/>
                         </h3>
                     </div>
+                    <!-- AI TRIAGE PANEL (Brain 1) -->
+                    <div class="alert alert-info" role="alert"
+                         invisible="not ai_triage_done"
+                         groups="baladiya.group_baladiya_officer">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="mb-0"><i class="fa fa-robot"/> AI Triage Recommendation</h5>
+                            <span class="badge text-bg-primary">
+                                Confidence: <field name="ai_triage_confidence" nolabel="1"/>%
+                            </span>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-4">
+                                <strong>Suggested Priority:</strong>
+                                <field name="ai_suggested_priority" nolabel="1"/>
+                            </div>
+                            <div class="col-md-4">
+                                <strong>Suggested Dept:</strong>
+                                <field name="ai_suggested_department_id" nolabel="1"/>
+                            </div>
+                            <div class="col-md-4">
+                                <strong>Suggested Officer:</strong>
+                                <field name="ai_suggested_officer_id" nolabel="1"/>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <strong>AI Reasoning:</strong>
+                            <field name="ai_triage_reasoning" nolabel="1"/>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button name="action_accept_ai_triage" string="Accept AI Suggestions"
+                                    type="object" class="btn btn-sm btn-success"
+                                    icon="fa-check"/>
+                            <button name="action_dismiss_ai_triage" string="Dismiss"
+                                    type="object" class="btn btn-sm btn-secondary"
+                                    icon="fa-times"/>
+                        </div>
+                    </div>
+
                     <group>
                         <group string="Request Information">
                             <field name="citizen_id"/>
@@ -180,6 +223,38 @@
                         </page>
                         <page string="Documents" name="documents">
                             <field name="attachment_ids" widget="many2many_binary"/>
+                            <!-- AI Document Validation (Brain 2) -->
+                            <div groups="baladiya.group_baladiya_officer" class="mt-3">
+                                <button name="action_ai_validate_documents" string="Validate Documents with AI"
+                                        type="object" class="btn btn-sm btn-warning mb-2"
+                                        icon="fa-magic"
+                                        invisible="state == 'draft'"/>
+                                <div invisible="not ai_doc_validation_done"
+                                     class="alert alert-secondary">
+                                    <h6><i class="fa fa-check-circle"/> AI Document Assessment</h6>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <strong>Completeness:</strong>
+                                            <field name="ai_doc_completeness" nolabel="1" widget="progressbar"/>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-md-6">
+                                            <strong>Identified:</strong>
+                                            <field name="ai_doc_identified" nolabel="1"/>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong>Missing:</strong>
+                                            <field name="ai_doc_missing" nolabel="1"
+                                                   class="text-danger"/>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <strong>Assessment:</strong>
+                                        <field name="ai_doc_assessment" nolabel="1"/>
+                                    </div>
+                                </div>
+                            </div>
                         </page>
                         <page string="Internal Notes" name="internal"
                               groups="baladiya.group_baladiya_officer">
@@ -191,6 +266,36 @@
                                 <field name="citizen_rating" widget="priority"/>
                                 <field name="citizen_feedback"/>
                             </group>
+                        </page>
+                        <page string="AI Insights" name="ai_insights"
+                              groups="baladiya.group_baladiya_officer">
+                            <div class="mb-3">
+                                <button name="action_ai_generate_insights"
+                                        string="Generate AI Insights"
+                                        type="object" class="btn btn-warning"
+                                        icon="fa-magic"
+                                        invisible="state == 'draft'"/>
+                                <span class="text-muted ms-2" invisible="not ai_insights_date">
+                                    Last generated: <field name="ai_insights_date" nolabel="1" widget="datetime"/>
+                                </span>
+                            </div>
+                            <div invisible="not ai_summary">
+                                <group>
+                                    <group>
+                                        <field name="ai_summary"/>
+                                        <field name="ai_sentiment" widget="badge"
+                                               decoration-danger="ai_sentiment == 'frustrated'"
+                                               decoration-warning="ai_sentiment == 'urgent'"
+                                               decoration-success="ai_sentiment == 'neutral'"/>
+                                    </group>
+                                </group>
+                                <group string="Detected Patterns">
+                                    <field name="ai_patterns" nolabel="1"/>
+                                </group>
+                                <group string="Recommended Action">
+                                    <field name="ai_recommended_action" nolabel="1"/>
+                                </group>
+                            </div>
                         </page>
                         <page string="Rejection" name="rejection"
                               invisible="state != 'rejected'">

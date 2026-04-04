@@ -6,7 +6,7 @@
         <field name="name">Baladiya: Request Submitted</field>
         <field name="model_id" ref="model_baladiya_service_request"/>
         <field name="subject">Your Service Request {{ object.name }} Has Been Submitted</field>
-        <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
+        <field name="email_from">{{ user.email_formatted }}</field>
         <field name="email_to">{{ object.citizen_id.email }}</field>
         <field name="body_html" type="html">
 <div style="margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;">
@@ -74,7 +74,7 @@
         <field name="name">Baladiya: Request Approved</field>
         <field name="model_id" ref="model_baladiya_service_request"/>
         <field name="subject">Your Request {{ object.name }} Has Been Approved!</field>
-        <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
+        <field name="email_from">{{ user.email_formatted }}</field>
         <field name="email_to">{{ object.citizen_id.email }}</field>
         <field name="body_html" type="html">
 <div style="margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;">
@@ -128,7 +128,7 @@
         <field name="name">Baladiya: Request Completed</field>
         <field name="model_id" ref="model_baladiya_service_request"/>
         <field name="subject">Your Request {{ object.name }} Has Been Completed</field>
-        <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
+        <field name="email_from">{{ user.email_formatted }}</field>
         <field name="email_to">{{ object.citizen_id.email }}</field>
         <field name="body_html" type="html">
 <div style="margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;">
