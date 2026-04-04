@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Module Category -->
+    <record id="module_category_baladiya" model="ir.module.category">
+        <field name="name">Baladiya</field>
+        <field name="description">Municipality Service Management</field>
+        <field name="sequence">200</field>
+    </record>
+
+    <!-- Privilege for group hierarchy -->
+    <record model="res.groups.privilege" id="res_groups_privilege_baladiya">
+        <field name="name">Baladiya</field>
+        <field name="sequence">200</field>
+        <field name="category_id" ref="module_category_baladiya"/>
+    </record>
+
+    <!-- Group: Citizen (Portal-based) -->
+    <record id="group_baladiya_citizen" model="res.groups">
+        <field name="name">Citizen</field>
+        <field name="comment">Citizens can submit and track their own service requests via the portal</field>
+        <field name="implied_ids" eval="[(4, ref('base.group_portal'))]"/>
+    </record>
+
+    <!-- Group: Service Officer -->
+    <record id="group_baladiya_officer" model="res.groups">
+        <field name="name">Service Officer</field>
+        <field name="comment">Officers process and manage service requests</field>
+        <field name="sequence">10</field>
+        <field name="privilege_id" ref="res_groups_privilege_baladiya"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <!-- Group: Department Manager -->
+    <record id="group_baladiya_manager" model="res.groups">
+        <field name="name">Department Manager</field>
+        <field name="comment">Managers approve/reject requests and oversee departmental operations</field>
+        <field name="sequence">20</field>
+        <field name="privilege_id" ref="res_groups_privilege_baladiya"/>
+        <field name="implied_ids" eval="[(4, ref('group_baladiya_officer'))]"/>
+    </record>
+
+    <!-- Group: Municipality Admin -->
+    <record id="group_baladiya_admin" model="res.groups">
+        <field name="name">Municipality Admin</field>
+        <field name="comment">Full access to all Baladiya module features</field>
+        <field name="sequence">30</field>
+        <field name="privilege_id" ref="res_groups_privilege_baladiya"/>
+        <field name="implied_ids" eval="[(4, ref('group_baladiya_manager'))]"/>
+        <field name="user_ids" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+    </record>
+
+    <!-- ==================== RECORD RULES ==================== -->
+    <data noupdate="1">
+
+        <!-- Portal citizens: only see their own requests -->
+        <record id="rule_citizen_own_requests" model="ir.rule">
+            <field name="name">Citizen: own requests only</field>
+            <field name="model_id" ref="model_baladiya_service_request"/>
+            <field name="domain_force">[('citizen_id.user_ids', 'in', [user.id])]</field>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        </record>
+
+        <!-- Officers: see all requests -->
+        <record id="rule_officer_all_requests" model="ir.rule">
+            <field name="name">Officer: see all requests</field>
+            <field name="model_id" ref="model_baladiya_service_request"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_baladiya_officer'))]"/>
+        </record>
+
+        <!-- Portal: read service categories -->
+        <record id="rule_portal_read_categories" model="ir.rule">
+            <field name="name">Portal: read service categories</field>
+            <field name="model_id" ref="model_baladiya_service_category"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Portal: read departments -->
+        <record id="rule_portal_read_departments" model="ir.rule">
+            <field name="name">Portal: read departments</field>
+            <field name="model_id" ref="model_baladiya_department"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+    </data>
+
+</odoo>

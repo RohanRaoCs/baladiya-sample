@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_service_category_list" model="ir.ui.view">
+        <field name="name">baladiya.service.category.list</field>
+        <field name="model">baladiya.service.category</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="department_id"/>
+                <field name="fee_amount" string="Fee (AED)"/>
+                <field name="estimated_days"/>
+                <field name="requires_inspection"/>
+                <field name="request_count"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_service_category_form" model="ir.ui.view">
+        <field name="name">baladiya.service.category.form</field>
+        <field name="model">baladiya.service.category</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" icon="fa-tasks" type="object"
+                                name="action_view_requests">
+                            <field name="request_count" widget="statinfo" string="Requests"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Service Name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="department_id"/>
+                            <field name="icon" placeholder="fa fa-building"/>
+                            <field name="color" widget="color_picker"/>
+                        </group>
+                        <group>
+                            <field name="fee_amount"/>
+                            <field name="estimated_days"/>
+                            <field name="requires_inspection"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                    </group>
+                    <group string="Description">
+                        <field name="description" nolabel="1"/>
+                    </group>
+                    <group string="Required Documents">
+                        <field name="required_documents" nolabel="1"
+                               placeholder="List the documents citizens must submit..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_service_category_kanban" model="ir.ui.view">
+        <field name="name">baladiya.service.category.kanban</field>
+        <field name="model">baladiya.service.category</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile" sample="1">
+                <field name="name"/>
+                <field name="icon"/>
+                <field name="fee_amount"/>
+                <field name="estimated_days"/>
+                <field name="department_id"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="text-center mb-2">
+                            <i t-att-class="record.icon.value + ' fa-3x text-primary'" t-att-title="record.name.value"/>
+                        </div>
+                        <field class="fw-bold fs-5 text-center d-block" name="name"/>
+                        <div class="text-center text-muted">
+                            <field name="department_id"/>
+                        </div>
+                        <div class="d-flex justify-content-between mt-2">
+                            <span><strong><field name="fee_amount"/> AED</strong></span>
+                            <span><field name="estimated_days"/> days</span>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="action_service_category" model="ir.actions.act_window">
+        <field name="name">Service Categories</field>
+        <field name="res_model">baladiya.service.category</field>
+        <field name="view_mode">kanban,list,form</field>
+    </record>
+
+</odoo>

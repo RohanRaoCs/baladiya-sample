@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_partner_form_inherit_baladiya" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit.baladiya</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button class="oe_stat_button" icon="fa-building-o"
+                        type="object" name="action_view_requests"
+                        invisible="request_count == 0">
+                    <field name="request_count" widget="statinfo" string="Requests"/>
+                </button>
+            </xpath>
+            <xpath expr="//page[@name='internal_notes']" position="before">
+                <page string="Baladiya" name="baladiya"
+                      invisible="not is_citizen">
+                    <group>
+                        <group>
+                            <field name="is_citizen"/>
+                            <field name="emirates_id"/>
+                        </group>
+                        <group>
+                            <field name="request_count"/>
+                            <field name="open_request_count"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+            <xpath expr="//field[@name='company_type']" position="after">
+                <field name="is_citizen"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

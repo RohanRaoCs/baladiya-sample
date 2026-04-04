@@ -1,0 +1,14 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_department_officer,baladiya.department.officer,model_baladiya_department,group_baladiya_officer,1,0,0,0
+access_department_manager,baladiya.department.manager,model_baladiya_department,group_baladiya_manager,1,1,1,0
+access_department_admin,baladiya.department.admin,model_baladiya_department,group_baladiya_admin,1,1,1,1
+access_department_portal,baladiya.department.portal,model_baladiya_department,base.group_portal,1,0,0,0
+access_category_officer,baladiya.service.category.officer,model_baladiya_service_category,group_baladiya_officer,1,0,0,0
+access_category_manager,baladiya.service.category.manager,model_baladiya_service_category,group_baladiya_manager,1,1,1,0
+access_category_admin,baladiya.service.category.admin,model_baladiya_service_category,group_baladiya_admin,1,1,1,1
+access_category_portal,baladiya.service.category.portal,model_baladiya_service_category,base.group_portal,1,0,0,0
+access_request_officer,baladiya.service.request.officer,model_baladiya_service_request,group_baladiya_officer,1,1,1,0
+access_request_manager,baladiya.service.request.manager,model_baladiya_service_request,group_baladiya_manager,1,1,1,1
+access_request_portal,baladiya.service.request.portal,model_baladiya_service_request,base.group_portal,1,1,1,0
+access_reject_wizard_officer,baladiya.reject.wizard.officer,model_baladiya_reject_wizard,group_baladiya_officer,1,1,1,0
+access_reject_wizard_manager,baladiya.reject.wizard.manager,model_baladiya_reject_wizard,group_baladiya_manager,1,1,1,1

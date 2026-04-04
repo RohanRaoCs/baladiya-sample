@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Root menu -->
+    <menuitem id="menu_baladiya_root"
+              name="Baladiya"
+              web_icon="baladiya,static/description/icon.png"
+              sequence="50"/>
+
+    <!-- Service Requests -->
+    <menuitem id="menu_service_requests"
+              name="Service Requests"
+              parent="menu_baladiya_root"
+              action="action_service_request"
+              sequence="10"/>
+
+    <!-- Dashboard -->
+    <menuitem id="menu_dashboard"
+              name="Dashboard"
+              parent="menu_baladiya_root"
+              action="action_service_request_dashboard"
+              sequence="20"/>
+
+    <!-- Configuration -->
+    <menuitem id="menu_configuration"
+              name="Configuration"
+              parent="menu_baladiya_root"
+              groups="group_baladiya_manager"
+              sequence="100"/>
+
+    <menuitem id="menu_departments"
+              name="Departments"
+              parent="menu_configuration"
+              action="action_department"
+              sequence="10"/>
+
+    <menuitem id="menu_service_categories"
+              name="Service Categories"
+              parent="menu_configuration"
+              action="action_service_category"
+              sequence="20"/>
+
+</odoo>

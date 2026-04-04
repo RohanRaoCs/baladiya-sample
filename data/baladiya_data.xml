@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- ==================== SEQUENCE ==================== -->
+    <record id="seq_service_request" model="ir.sequence">
+        <field name="name">Baladiya Service Request</field>
+        <field name="code">baladiya.service.request</field>
+        <field name="prefix">SR-%(year)s-</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <!-- ==================== DEPARTMENTS ==================== -->
+    <record id="dept_building" model="baladiya.department">
+        <field name="name">Building &amp; Construction</field>
+        <field name="code">BLD</field>
+        <field name="description">Handles building permits, construction approvals, and structural inspections for all construction activities within the municipality.</field>
+    </record>
+
+    <record id="dept_roads" model="baladiya.department">
+        <field name="name">Roads &amp; Infrastructure</field>
+        <field name="code">RDS</field>
+        <field name="description">Manages road maintenance, infrastructure repairs, street lighting, and public utilities across the municipality.</field>
+    </record>
+
+    <record id="dept_environment" model="baladiya.department">
+        <field name="name">Environment &amp; Public Health</field>
+        <field name="code">ENV</field>
+        <field name="description">Oversees waste management, environmental complaints, pest control, food safety inspections, and public health services.</field>
+    </record>
+
+    <record id="dept_urban" model="baladiya.department">
+        <field name="name">Urban Planning</field>
+        <field name="code">URB</field>
+        <field name="description">Responsible for urban development plans, zoning, signage permits, and maintaining the aesthetic standards of the city.</field>
+    </record>
+
+    <record id="dept_community" model="baladiya.department">
+        <field name="name">Community Services</field>
+        <field name="code">COM</field>
+        <field name="description">Manages public facilities, parks, community centers, event spaces, and recreational services for residents.</field>
+    </record>
+
+    <record id="dept_licensing" model="baladiya.department">
+        <field name="name">Commercial Licensing</field>
+        <field name="code">LIC</field>
+        <field name="description">Issues and renews trade licenses, commercial permits, and business registrations for all commercial activities.</field>
+    </record>
+
+    <!-- ==================== SERVICE CATEGORIES ==================== -->
+    <record id="cat_building_permit" model="baladiya.service.category">
+        <field name="name">Building Permit</field>
+        <field name="code">BLD</field>
+        <field name="department_id" ref="dept_building"/>
+        <field name="icon">fa fa-building</field>
+        <field name="fee_amount">500.00</field>
+        <field name="requires_inspection" eval="True"/>
+        <field name="estimated_days">14</field>
+        <field name="required_documents">1. Title deed or property ownership certificate
+2. Architectural drawings (signed by licensed engineer)
+3. Structural engineering report
+4. NOC from Civil Defense
+5. Site plan with plot boundaries
+6. Emirates ID copy of the applicant</field>
+        <field name="description">&lt;p&gt;Apply for a building permit to construct, renovate, or extend any structure within Sharjah municipality boundaries. All construction activities require prior approval.&lt;/p&gt;</field>
+        <field name="color">1</field>
+    </record>
+
+    <record id="cat_road_maintenance" model="baladiya.service.category">
+        <field name="name">Road Maintenance Request</field>
+        <field name="code">RDS</field>
+        <field name="department_id" ref="dept_roads"/>
+        <field name="icon">fa fa-road</field>
+        <field name="fee_amount">0.00</field>
+        <field name="requires_inspection" eval="False"/>
+        <field name="estimated_days">7</field>
+        <field name="required_documents">1. Photos of the affected area
+2. Exact location description or map pin</field>
+        <field name="description">&lt;p&gt;Report road damage, potholes, broken sidewalks, faulty street lights, or any infrastructure issues that need municipal attention.&lt;/p&gt;</field>
+        <field name="color">2</field>
+    </record>
+
+    <record id="cat_waste_complaint" model="baladiya.service.category">
+        <field name="name">Waste &amp; Environment Complaint</field>
+        <field name="code">ENV</field>
+        <field name="department_id" ref="dept_environment"/>
+        <field name="icon">fa fa-leaf</field>
+        <field name="fee_amount">0.00</field>
+        <field name="requires_inspection" eval="True"/>
+        <field name="estimated_days">3</field>
+        <field name="required_documents">1. Photos of the issue
+2. Location description</field>
+        <field name="description">&lt;p&gt;Report illegal dumping, missed waste collection, pest infestations, noise complaints, or any environmental and public health concerns in your area.&lt;/p&gt;</field>
+        <field name="color">3</field>
+    </record>
+
+    <record id="cat_trade_license" model="baladiya.service.category">
+        <field name="name">Trade License</field>
+        <field name="code">LIC</field>
+        <field name="department_id" ref="dept_licensing"/>
+        <field name="icon">fa fa-briefcase</field>
+        <field name="fee_amount">1000.00</field>
+        <field name="requires_inspection" eval="False"/>
+        <field name="estimated_days">10</field>
+        <field name="required_documents">1. Trade name reservation certificate
+2. Tenancy contract (Ejari) for business premises
+3. Passport copy of the owner/partners
+4. Emirates ID copy
+5. NOC from relevant authority (if applicable)
+6. Initial approval from Department of Economic Development</field>
+        <field name="description">&lt;p&gt;Apply for a new trade license or renew an existing one for commercial, professional, or industrial activities within the municipality.&lt;/p&gt;</field>
+        <field name="color">4</field>
+    </record>
+
+    <record id="cat_facility_booking" model="baladiya.service.category">
+        <field name="name">Facility Booking</field>
+        <field name="code">FAC</field>
+        <field name="department_id" ref="dept_community"/>
+        <field name="icon">fa fa-calendar</field>
+        <field name="fee_amount">200.00</field>
+        <field name="requires_inspection" eval="False"/>
+        <field name="estimated_days">5</field>
+        <field name="required_documents">1. Booking request form
+2. Emirates ID copy
+3. Event details (type, expected attendees, date/time)</field>
+        <field name="description">&lt;p&gt;Reserve community halls, parks, sports facilities, or public event spaces managed by the municipality for events, gatherings, or activities.&lt;/p&gt;</field>
+        <field name="color">5</field>
+    </record>
+
+    <record id="cat_signage_permit" model="baladiya.service.category">
+        <field name="name">Signage Permit</field>
+        <field name="code">SGN</field>
+        <field name="department_id" ref="dept_urban"/>
+        <field name="icon">fa fa-sign-in</field>
+        <field name="fee_amount">300.00</field>
+        <field name="requires_inspection" eval="True"/>
+        <field name="estimated_days">7</field>
+        <field name="required_documents">1. Sign design and dimensions
+2. Location photo showing proposed placement
+3. Trade license copy
+4. NOC from building owner</field>
+        <field name="description">&lt;p&gt;Apply for permission to install, modify, or replace commercial signage, billboards, or advertising displays within the municipality.&lt;/p&gt;</field>
+        <field name="color">6</field>
+    </record>
+
+</odoo>
