@@ -22,14 +22,18 @@ action = {'type': 'ir.actions.act_url', 'url': '/baladiya/ai-dashboard', 'target
                         <h2 class="baladiya-heading mb-0">
                             <i class="fa fa-tachometer"/> Municipal Operations Center
                         </h2>
-                        <small class="text-muted">Real-time overview of all municipal service operations</small>
+                        <small class="text-muted">AI-powered real-time intelligence for Sharjah Municipality</small>
                     </div>
-                    <div>
+                    <div class="d-flex gap-2">
+                        <button id="btn-briefing" class="btn btn-primary"
+                                onclick="generateBriefing()">
+                            <i class="fa fa-magic"/> AI Executive Briefing
+                        </button>
                         <a href="/baladiya/ai-dashboard/refresh" class="btn btn-warning">
-                            <i class="fa fa-magic"/> Refresh AI Predictions
+                            <i class="fa fa-refresh"/> Refresh Predictions
                         </a>
-                        <a href="/odoo/action-731" class="btn btn-secondary ms-2">
-                            <i class="fa fa-arrow-left"/> Back to Baladiya
+                        <a href="/odoo/action-731" class="btn btn-secondary">
+                            <i class="fa fa-arrow-left"/> Back
                         </a>
                     </div>
                 </div>
@@ -42,7 +46,7 @@ action = {'type': 'ir.actions.act_url', 'url': '/baladiya/ai-dashboard', 'target
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <div class="text-muted small text-uppercase fw-bold">Total Requests</div>
-                                        <h2 class="mb-0 fw-bold" t-esc="total_all"/>
+                                        <h2 class="mb-0 fw-bold kpi-counter" t-att-data-target="total_all">0</h2>
                                     </div>
                                     <i class="fa fa-folder-open fa-2x text-primary opacity-50"/>
                                 </div>
@@ -55,7 +59,8 @@ action = {'type': 'ir.actions.act_url', 'url': '/baladiya/ai-dashboard', 'target
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <div class="text-muted small text-uppercase fw-bold">Active</div>
-                                        <h2 class="mb-0 fw-bold" style="color:#F57C00;" t-esc="total_active"/>
+                                        <h2 class="mb-0 fw-bold kpi-counter" style="color:#F57C00;"
+                                            t-att-data-target="total_active">0</h2>
                                     </div>
                                     <i class="fa fa-spinner fa-2x opacity-50" style="color:#F57C00;"/>
                                 </div>
@@ -68,7 +73,8 @@ action = {'type': 'ir.actions.act_url', 'url': '/baladiya/ai-dashboard', 'target
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <div class="text-muted small text-uppercase fw-bold">Completed (Month)</div>
-                                        <h2 class="mb-0 fw-bold text-success" t-esc="completed_month"/>
+                                        <h2 class="mb-0 fw-bold text-success kpi-counter"
+                                            t-att-data-target="completed_month">0</h2>
                                     </div>
                                     <i class="fa fa-check-circle fa-2x text-success opacity-50"/>
                                 </div>
@@ -81,7 +87,8 @@ action = {'type': 'ir.actions.act_url', 'url': '/baladiya/ai-dashboard', 'target
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <div class="text-muted small text-uppercase fw-bold">Overdue</div>
-                                        <h2 class="mb-0 fw-bold text-danger" t-esc="total_overdue"/>
+                                        <h2 class="mb-0 fw-bold text-danger kpi-counter"
+                                            t-att-data-target="total_overdue">0</h2>
                                     </div>
                                     <i class="fa fa-exclamation-triangle fa-2x text-danger opacity-50"/>
                                 </div>
@@ -98,9 +105,7 @@ action = {'type': 'ir.actions.act_url', 'url': '/baladiya/ai-dashboard', 'target
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <div class="text-muted small text-uppercase fw-bold">SLA Compliance</div>
-                                        <h2 class="mb-0 fw-bold">
-                                            <t t-esc="sla_compliance"/>%
-                                        </h2>
+                                        <h2 class="mb-0 fw-bold"><t t-esc="sla_compliance"/>%</h2>
                                     </div>
                                     <i class="fa fa-shield fa-2x text-success opacity-50"/>
                                 </div>
@@ -113,9 +118,7 @@ action = {'type': 'ir.actions.act_url', 'url': '/baladiya/ai-dashboard', 'target
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <div class="text-muted small text-uppercase fw-bold">Avg Processing</div>
-                                        <h2 class="mb-0 fw-bold" style="color:#7B1FA2;">
-                                            <t t-esc="avg_days"/> days
-                                        </h2>
+                                        <h2 class="mb-0 fw-bold" style="color:#7B1FA2;"><t t-esc="avg_days"/> days</h2>
                                     </div>
                                     <i class="fa fa-clock-o fa-2x opacity-50" style="color:#7B1FA2;"/>
                                 </div>
@@ -128,7 +131,8 @@ action = {'type': 'ir.actions.act_url', 'url': '/baladiya/ai-dashboard', 'target
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <div class="text-muted small text-uppercase fw-bold">Submitted Today</div>
-                                        <h2 class="mb-0 fw-bold" style="color:#0277BD;" t-esc="submitted_today"/>
+                                        <h2 class="mb-0 fw-bold kpi-counter" style="color:#0277BD;"
+                                            t-att-data-target="submitted_today">0</h2>
                                     </div>
                                     <i class="fa fa-calendar-check-o fa-2x opacity-50" style="color:#0277BD;"/>
                                 </div>
@@ -141,7 +145,8 @@ action = {'type': 'ir.actions.act_url', 'url': '/baladiya/ai-dashboard', 'target
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <div class="text-muted small text-uppercase fw-bold">Pending Review</div>
-                                        <h2 class="mb-0 fw-bold" style="color:#FF8F00;" t-esc="pending_review"/>
+                                        <h2 class="mb-0 fw-bold kpi-counter" style="color:#FF8F00;"
+                                            t-att-data-target="pending_review">0</h2>
                                     </div>
                                     <i class="fa fa-eye fa-2x opacity-50" style="color:#FF8F00;"/>
                                 </div>
@@ -150,10 +155,82 @@ action = {'type': 'ir.actions.act_url', 'url': '/baladiya/ai-dashboard', 'target
                     </div>
                 </div>
 
-                <!-- ==================== DISTRICT HEATMAP + ACTIVITY FEED ==================== -->
+                <!-- ==================== CHARTS ROW ==================== -->
                 <div class="row g-4 mb-4">
-                    <!-- District Heatmap -->
-                    <div class="col-lg-8">
+                    <div class="col-lg-5">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-header" style="background:#1565C0;color:#fff;">
+                                <i class="fa fa-pie-chart"/> Request Status Distribution
+                            </div>
+                            <div class="card-body d-flex align-items-center justify-content-center">
+                                <canvas id="statusChart" style="max-height:260px;"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-7">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-header" style="background:#1565C0;color:#fff;">
+                                <i class="fa fa-bar-chart"/> Department Workload (Pending Requests)
+                            </div>
+                            <div class="card-body d-flex align-items-center">
+                                <canvas id="deptChart" style="max-height:260px;width:100%;"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== SENTIMENT + DISTRICT + ACTIVITY ==================== -->
+                <div class="row g-4 mb-4">
+
+                    <!-- Citizen Sentiment AI Analysis -->
+                    <div class="col-lg-3">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-header" style="background:#1565C0;color:#fff;">
+                                <i class="fa fa-heart"/> AI Citizen Sentiment
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span class="fw-bold text-danger">&#128680; Urgent</span>
+                                        <span class="fw-bold" t-esc="sentiment_urgent"/>
+                                    </div>
+                                    <div class="progress" style="height:14px;border-radius:7px;">
+                                        <div class="progress-bar bg-danger"
+                                             t-att-style="'width:' + str(round(sentiment_urgent / sentiment_total * 100)) + '%;border-radius:7px;'"/>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span class="fw-bold text-warning">&#128544; Frustrated</span>
+                                        <span class="fw-bold" t-esc="sentiment_frustrated"/>
+                                    </div>
+                                    <div class="progress" style="height:14px;border-radius:7px;">
+                                        <div class="progress-bar bg-warning"
+                                             t-att-style="'width:' + str(round(sentiment_frustrated / sentiment_total * 100)) + '%;border-radius:7px;'"/>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span class="fw-bold text-secondary">&#128528; Neutral</span>
+                                        <span class="fw-bold" t-esc="sentiment_neutral"/>
+                                    </div>
+                                    <div class="progress" style="height:14px;border-radius:7px;">
+                                        <div class="progress-bar bg-secondary"
+                                             t-att-style="'width:' + str(round(sentiment_neutral / sentiment_total * 100)) + '%;border-radius:7px;'"/>
+                                    </div>
+                                </div>
+                                <hr/>
+                                <small class="text-muted">
+                                    Based on AI analysis of
+                                    <strong t-esc="sentiment_urgent + sentiment_frustrated + sentiment_neutral"/>
+                                    triaged requests
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- District Overview -->
+                    <div class="col-lg-5">
                         <div class="card shadow-sm h-100">
                             <div class="card-header" style="background:#1565C0;color:#fff;">
                                 <i class="fa fa-map-marker"/> District Overview
@@ -166,15 +243,14 @@ action = {'type': 'ir.actions.act_url', 'url': '/baladiya/ai-dashboard', 'target
                                                 <th>District</th>
                                                 <th class="text-center">Total</th>
                                                 <th class="text-center">Active</th>
-                                                <th class="text-center">Completed</th>
+                                                <th class="text-center">Done</th>
                                                 <th class="text-center">Overdue</th>
-                                                <th class="text-center">Share</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <t t-foreach="district_data" t-as="dist">
                                                 <tr t-att-class="'table-danger' if dist['overdue'] > 0 else ''">
-                                                    <td class="fw-bold">
+                                                    <td class="fw-bold small">
                                                         <i class="fa fa-map-pin me-1"
                                                            t-att-style="'color:#C62828;' if dist['overdue'] > 0 else 'color:#1565C0;'"/>
                                                         <t t-esc="dist['name']"/>
@@ -190,17 +266,7 @@ action = {'type': 'ir.actions.act_url', 'url': '/baladiya/ai-dashboard', 'target
                                                         <t t-if="dist['overdue'] > 0">
                                                             <span class="badge text-bg-danger" t-esc="dist['overdue']"/>
                                                         </t>
-                                                        <t t-else="">
-                                                            <span class="text-muted">0</span>
-                                                        </t>
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <div class="progress" style="height:18px;">
-                                                            <div class="progress-bar" role="progressbar"
-                                                                 t-att-style="'width:' + str(dist['pct']) + '%;background:#1565C0;'">
-                                                                <t t-esc="dist['pct']"/>%
-                                                            </div>
-                                                        </div>
+                                                        <t t-else=""><span class="text-muted">—</span></t>
                                                     </td>
                                                 </tr>
                                             </t>
@@ -218,9 +284,9 @@ action = {'type': 'ir.actions.act_url', 'url': '/baladiya/ai-dashboard', 'target
                     <div class="col-lg-4">
                         <div class="card shadow-sm h-100">
                             <div class="card-header" style="background:#1565C0;color:#fff;">
-                                <i class="fa fa-bolt"/> Live Activity Feed
+                                <i class="fa fa-bolt"/> Live Activity
                             </div>
-                            <div class="card-body p-0" style="max-height:400px;overflow-y:auto;">
+                            <div class="card-body p-0" style="max-height:380px;overflow-y:auto;">
                                 <t t-if="activity_feed">
                                     <t t-foreach="activity_feed" t-as="act">
                                         <div class="px-3 py-2 border-bottom d-flex align-items-start">
@@ -247,7 +313,7 @@ action = {'type': 'ir.actions.act_url', 'url': '/baladiya/ai-dashboard', 'target
                                                     <span class="text-muted"> — </span>
                                                     <span t-esc="act['state']"/>
                                                 </div>
-                                                <div class="text-muted" style="font-size:12px;">
+                                                <div class="text-muted" style="font-size:11px;">
                                                     <t t-esc="act['category']"/> · <t t-esc="act['citizen']"/>
                                                 </div>
                                             </div>
@@ -264,8 +330,24 @@ action = {'type': 'ir.actions.act_url', 'url': '/baladiya/ai-dashboard', 'target
                     </div>
                 </div>
 
+                <!-- ==================== AI EXECUTIVE BRIEFING PANEL ==================== -->
+                <div id="briefing-panel" class="card shadow-sm mb-4" style="display:none;">
+                    <div class="card-header d-flex justify-content-between align-items-center"
+                         style="background:linear-gradient(135deg,#1565C0,#0D47A1);color:#fff;">
+                        <span><i class="fa fa-magic"/> AI Executive Briefing</span>
+                        <small id="briefing-timestamp" class="opacity-75"/>
+                    </div>
+                    <div class="card-body">
+                        <div id="briefing-loading" class="text-center py-3" style="display:none;">
+                            <div class="spinner-border text-primary" role="status"/>
+                            <p class="text-muted mt-2 mb-0">AI is analysing live operations data...</p>
+                        </div>
+                        <div id="briefing-text" style="white-space:pre-line;line-height:1.9;font-size:1.05rem;color:#1a1a2e;"/>
+                    </div>
+                </div>
+
                 <!-- ==================== AI PREDICTIONS ==================== -->
-                <h4 class="baladiya-heading mt-4 mb-3">
+                <h4 class="baladiya-heading mt-2 mb-3">
                     <i class="fa fa-magic"/> AI Predictive Analysis
                     <t t-if="date_str">
                         <small class="text-muted fw-normal ms-2" style="font-size:13px;">
@@ -275,14 +357,13 @@ action = {'type': 'ir.actions.act_url', 'url': '/baladiya/ai-dashboard', 'target
                 </h4>
 
                 <t t-if="data.get('error')">
-                    <div class="alert alert-warning" role="status">
+                    <div class="alert alert-warning">
                         <i class="fa fa-exclamation-triangle"/> <t t-esc="data.get('error')"/>
-                        <br/>Click "Refresh AI Predictions" to generate new predictions.
+                        <br/>Click "Refresh Predictions" to generate new predictions.
                     </div>
                 </t>
 
                 <div class="row g-4 mb-4">
-                    <!-- System Health -->
                     <div class="col-md-2">
                         <div class="card shadow-sm text-center h-100">
                             <div class="card-body d-flex flex-column justify-content-center">
@@ -292,8 +373,6 @@ action = {'type': 'ir.actions.act_url', 'url': '/baladiya/ai-dashboard', 'target
                             </div>
                         </div>
                     </div>
-
-                    <!-- SLA Risk Requests -->
                     <div class="col-md-5">
                         <div class="card shadow-sm h-100">
                             <div class="card-header bg-danger text-white">
@@ -319,8 +398,6 @@ action = {'type': 'ir.actions.act_url', 'url': '/baladiya/ai-dashboard', 'target
                             </div>
                         </div>
                     </div>
-
-                    <!-- Bottleneck Analysis -->
                     <div class="col-md-5">
                         <div class="card shadow-sm h-100">
                             <div class="card-header bg-warning text-dark">
@@ -349,7 +426,6 @@ action = {'type': 'ir.actions.act_url', 'url': '/baladiya/ai-dashboard', 'target
                     </div>
                 </div>
 
-                <!-- AI Recommendations -->
                 <t t-if="data.get('recommendations')">
                     <div class="card shadow-sm mb-4">
                         <div class="card-header" style="background:#1565C0;color:#fff;">
@@ -369,6 +445,113 @@ action = {'type': 'ir.actions.act_url', 'url': '/baladiya/ai-dashboard', 'target
                 </t>
 
             </div>
+
+            <!-- ==================== SCRIPTS ==================== -->
+            <script>
+            (function() {
+                // Animate KPI counters
+                document.querySelectorAll('.kpi-counter').forEach(function(el) {
+                    var target = parseInt(el.dataset.target) || 0;
+                    if (target === 0) { el.textContent = '0'; return; }
+                    var start = null;
+                    function step(ts) {
+                        if (!start) start = ts;
+                        var p = Math.min((ts - start) / 900, 1);
+                        el.textContent = Math.floor(target * (1 - Math.pow(1 - p, 3)));
+                        if (p &lt; 1) requestAnimationFrame(step);
+                        else el.textContent = target;
+                    }
+                    requestAnimationFrame(step);
+                });
+
+                // Load Chart.js and render charts
+                var s = document.createElement('script');
+                s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
+                s.onload = function() {
+                    var stateCounts = <t t-out="state_counts_json"/>;
+                    var deptData = <t t-out="dept_chart_json"/>;
+
+                    new Chart(document.getElementById('statusChart'), {
+                        type: 'doughnut',
+                        data: {
+                            labels: Object.keys(stateCounts),
+                            datasets: [{
+                                data: Object.values(stateCounts),
+                                backgroundColor: ['#1976D2','#7B1FA2','#F57C00','#2E7D32','#C62828'],
+                                borderWidth: 3,
+                                borderColor: '#fff',
+                            }]
+                        },
+                        options: {
+                            plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } },
+                            cutout: '60%',
+                        }
+                    });
+
+                    new Chart(document.getElementById('deptChart'), {
+                        type: 'bar',
+                        data: {
+                            labels: deptData.labels,
+                            datasets: [{
+                                label: 'Pending Requests',
+                                data: deptData.values,
+                                backgroundColor: '#1565C0',
+                                borderRadius: 6,
+                            }]
+                        },
+                        options: {
+                            indexAxis: 'y',
+                            plugins: { legend: { display: false } },
+                            scales: {
+                                x: { beginAtZero: true, ticks: { precision: 0 } },
+                                y: { ticks: { font: { size: 11 } } }
+                            }
+                        }
+                    });
+                };
+                document.head.appendChild(s);
+            })();
+
+            function generateBriefing() {
+                var btn = document.getElementById('btn-briefing');
+                var panel = document.getElementById('briefing-panel');
+                var loading = document.getElementById('briefing-loading');
+                var textEl = document.getElementById('briefing-text');
+                var ts = document.getElementById('briefing-timestamp');
+
+                btn.disabled = true;
+                btn.innerHTML = '&lt;i class="fa fa-spinner fa-spin"&gt;&lt;/i&gt; Generating...';
+                panel.style.display = 'block';
+                loading.style.display = 'block';
+                textEl.textContent = '';
+
+                fetch('/baladiya/ai-dashboard/briefing', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({jsonrpc:'2.0', method:'call', id:1, params:{}})
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    loading.style.display = 'none';
+                    var text = (data.result &amp;&amp; data.result.briefing) || 'Could not generate briefing.';
+                    ts.textContent = '— ' + new Date().toLocaleTimeString();
+                    var i = 0;
+                    var interval = setInterval(function() {
+                        textEl.textContent = text.slice(0, i++);
+                        if (i > text.length) clearInterval(interval);
+                    }, 15);
+                    btn.disabled = false;
+                    btn.innerHTML = '&lt;i class="fa fa-magic"&gt;&lt;/i&gt; Regenerate Briefing';
+                })
+                .catch(function() {
+                    loading.style.display = 'none';
+                    textEl.textContent = 'Error connecting to AI service.';
+                    btn.disabled = false;
+                    btn.innerHTML = '&lt;i class="fa fa-magic"&gt;&lt;/i&gt; AI Executive Briefing';
+                });
+            }
+            </script>
+
         </t>
     </template>
 

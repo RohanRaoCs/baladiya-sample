@@ -392,3 +392,46 @@ Similar requests in same district (last 60 days):
         )
 
         return self._call_openai(system, user)
+
+    def ai_executive_briefing(self, stats):
+        """Brain 7: Generate a plain-English executive briefing of current operations."""
+        system = """You are the AI operations intelligence officer for Sharjah Municipality.
+Write a concise 3-paragraph executive briefing (max 250 words total) based on live data.
+
+Paragraph 1: Overall system status and key headline numbers.
+Paragraph 2: Areas of concern — overdue requests, bottlenecks, sentiment issues.
+Paragraph 3: Top 2 recommended actions for management today.
+
+Write in confident, professional tone. Use specific numbers. No bullet points — flowing prose only.
+Return JSON: {"briefing": "<full text with paragraphs separated by \\n\\n>"}"""
+
+        user = """Live Operations Snapshot — %s
+
+KPIs:
+- Total requests: %d | Active: %d | Completed this month: %d
+- Overdue: %d | SLA compliance: %s%% | Avg processing: %s days
+- Submitted today: %d | Pending AI review: %d
+
+Citizen Sentiment:
+- Urgent: %d | Frustrated: %d | Neutral: %d
+
+Top districts by volume: %s
+Busiest department: %s (%d pending)
+""" % (
+            stats.get('today', ''),
+            stats.get('total_all', 0),
+            stats.get('total_active', 0),
+            stats.get('completed_month', 0),
+            stats.get('total_overdue', 0),
+            stats.get('sla_compliance', 0),
+            stats.get('avg_days', 0),
+            stats.get('submitted_today', 0),
+            stats.get('pending_review', 0),
+            stats.get('sentiment_urgent', 0),
+            stats.get('sentiment_frustrated', 0),
+            stats.get('sentiment_neutral', 0),
+            stats.get('top_districts', ''),
+            stats.get('busiest_dept', ''),
+            stats.get('busiest_dept_count', 0),
+        )
+        return self._call_openai(system, user, max_tokens=600)
