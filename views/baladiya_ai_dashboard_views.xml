@@ -512,7 +512,7 @@ action = {'type': 'ir.actions.act_url', 'url': '/baladiya/ai-dashboard', 'target
                 document.head.appendChild(s);
             })();
 
-            function generateBriefing() {
+            window.generateBriefing = function() {
                 var btn = document.getElementById('btn-briefing');
                 var panel = document.getElementById('briefing-panel');
                 var loading = document.getElementById('briefing-loading');
@@ -525,31 +525,53 @@ action = {'type': 'ir.actions.act_url', 'url': '/baladiya/ai-dashboard', 'target
                 loading.style.display = 'block';
                 textEl.textContent = '';
 
+                // Get Odoo session id from cookie for auth
+                var sessionId = document.cookie.split(';')
+                    .map(function(c) { return c.trim(); })
+                    .filter(function(c) { return c.startsWith('session_id='); })
+                    .map(function(c) { return c.split('=')[1]; })[0] || '';
+
                 fetch('/baladiya/ai-dashboard/briefing', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({jsonrpc:'2.0', method:'call', id:1, params:{}})
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    body: JSON.stringify({
+                        jsonrpc: '2.0',
+                        method: 'call',
+                        id: Math.floor(Math.random() * 10000),
+                        params: {}
+                    })
                 })
-                .then(function(r) { return r.json(); })
+                .then(function(r) {
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    return r.json();
+                })
                 .then(function(data) {
                     loading.style.display = 'none';
-                    var text = (data.result &amp;&amp; data.result.briefing) || 'Could not generate briefing.';
-                    ts.textContent = '— ' + new Date().toLocaleTimeString();
-                    var i = 0;
-                    var interval = setInterval(function() {
-                        textEl.textContent = text.slice(0, i++);
-                        if (i > text.length) clearInterval(interval);
-                    }, 15);
+                    if (data.error) {
+                        textEl.textContent = 'AI error: ' + (data.error.data &amp;&amp; data.error.data.message || data.error.message || 'Unknown error');
+                    } else {
+                        var text = (data.result &amp;&amp; data.result.briefing) || 'Could not generate briefing.';
+                        ts.textContent = '— ' + new Date().toLocaleTimeString();
+                        var i = 0;
+                        var interval = setInterval(function() {
+                            textEl.textContent = text.slice(0, i++);
+                            if (i > text.length) clearInterval(interval);
+                        }, 15);
+                    }
                     btn.disabled = false;
                     btn.innerHTML = '&lt;i class="fa fa-magic"&gt;&lt;/i&gt; Regenerate Briefing';
                 })
-                .catch(function() {
+                .catch(function(err) {
                     loading.style.display = 'none';
-                    textEl.textContent = 'Error connecting to AI service.';
+                    textEl.textContent = 'Connection error: ' + err.message;
                     btn.disabled = false;
                     btn.innerHTML = '&lt;i class="fa fa-magic"&gt;&lt;/i&gt; AI Executive Briefing';
                 });
-            }
+            };
             </script>
 
         </t>
