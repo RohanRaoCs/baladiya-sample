@@ -222,7 +222,7 @@ action = {'type': 'ir.actions.act_url', 'url': '/baladiya/ai-dashboard', 'target
                                 <hr/>
                                 <small class="text-muted">
                                     Based on AI analysis of
-                                    <strong t-esc="sentiment_urgent + sentiment_frustrated + sentiment_neutral"/>
+                                    <strong t-esc="(sentiment_urgent or 0) + (sentiment_frustrated or 0) + (sentiment_neutral or 0)"/>
                                     triaged requests
                                 </small>
                             </div>
