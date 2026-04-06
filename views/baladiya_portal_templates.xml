@@ -24,53 +24,6 @@
             <t t-set="breadcrumbs_searchbar" t-value="1"/>
 
             <div class="baladiya-portal">
-                <!-- Live Stats Banner -->
-                <div class="baladiya-stats-banner mb-4">
-                    <div class="row g-0">
-                        <div class="col-6 col-md-3 baladiya-stat-item">
-                            <div class="baladiya-stat-number"
-                                 t-attf-data-target="#{stats.get('total', 0)}">0</div>
-                            <div class="baladiya-stat-label">Total Requests</div>
-                        </div>
-                        <div class="col-6 col-md-3 baladiya-stat-item">
-                            <div class="baladiya-stat-number"
-                                 t-attf-data-target="#{stats.get('total_resolved', 0)}">0</div>
-                            <div class="baladiya-stat-label">Resolved</div>
-                        </div>
-                        <div class="col-6 col-md-3 baladiya-stat-item">
-                            <div class="baladiya-stat-number"
-                                 t-attf-data-target="#{stats.get('active', 0)}">0</div>
-                            <div class="baladiya-stat-label">Active</div>
-                        </div>
-                        <div class="col-6 col-md-3 baladiya-stat-item">
-                            <div class="baladiya-stat-number baladiya-stat-days"
-                                 t-attf-data-target="#{stats.get('avg_days', 0)}">0</div>
-                            <div class="baladiya-stat-label">Avg. Days to Resolve</div>
-                        </div>
-                    </div>
-                </div>
-                <script>
-                    (function() {
-                        function animateCounter(el) {
-                            var target = parseFloat(el.dataset.target) || 0;
-                            var isDecimal = el.classList.contains('baladiya-stat-days');
-                            var duration = 1200;
-                            var start = null;
-                            function step(ts) {
-                                if (!start) start = ts;
-                                var progress = Math.min((ts - start) / duration, 1);
-                                var ease = 1 - Math.pow(1 - progress, 3);
-                                var val = target * ease;
-                                el.textContent = isDecimal ? val.toFixed(1) : Math.floor(val).toLocaleString();
-                                if (progress &lt; 1) requestAnimationFrame(step);
-                                else el.textContent = isDecimal ? target.toFixed(1) : target.toLocaleString();
-                            }
-                            requestAnimationFrame(step);
-                        }
-                        document.querySelectorAll('.baladiya-stat-number').forEach(animateCounter);
-                    })();
-                </script>
-
                 <div class="text-center mb-4">
                     <h2 class="baladiya-heading">Municipal Services</h2>
                     <p class="text-muted">Select a service to submit your request</p>
