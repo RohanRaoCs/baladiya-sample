@@ -192,31 +192,31 @@ action = {'type': 'ir.actions.act_url', 'url': '/baladiya/ai-dashboard', 'target
                                 <div class="mb-3">
                                     <div class="d-flex justify-content-between mb-1">
                                         <span class="fw-bold text-danger">&#128680; Urgent</span>
-                                        <span class="fw-bold" t-esc="sentiment_urgent"/>
+                                        <span class="fw-bold" t-esc="sentiment_urgent or 0"/>
                                     </div>
                                     <div class="progress" style="height:14px;border-radius:7px;">
                                         <div class="progress-bar bg-danger"
-                                             t-att-style="'width:' + str(round(sentiment_urgent / sentiment_total * 100)) + '%;border-radius:7px;'"/>
+                                             t-att-style="'width:' + str(round((sentiment_urgent or 0) / (sentiment_total or 1) * 100)) + '%;border-radius:7px;'"/>
                                     </div>
                                 </div>
                                 <div class="mb-3">
                                     <div class="d-flex justify-content-between mb-1">
                                         <span class="fw-bold text-warning">&#128544; Frustrated</span>
-                                        <span class="fw-bold" t-esc="sentiment_frustrated"/>
+                                        <span class="fw-bold" t-esc="sentiment_frustrated or 0"/>
                                     </div>
                                     <div class="progress" style="height:14px;border-radius:7px;">
                                         <div class="progress-bar bg-warning"
-                                             t-att-style="'width:' + str(round(sentiment_frustrated / sentiment_total * 100)) + '%;border-radius:7px;'"/>
+                                             t-att-style="'width:' + str(round((sentiment_frustrated or 0) / (sentiment_total or 1) * 100)) + '%;border-radius:7px;'"/>
                                     </div>
                                 </div>
                                 <div class="mb-3">
                                     <div class="d-flex justify-content-between mb-1">
                                         <span class="fw-bold text-secondary">&#128528; Neutral</span>
-                                        <span class="fw-bold" t-esc="sentiment_neutral"/>
+                                        <span class="fw-bold" t-esc="sentiment_neutral or 0"/>
                                     </div>
                                     <div class="progress" style="height:14px;border-radius:7px;">
                                         <div class="progress-bar bg-secondary"
-                                             t-att-style="'width:' + str(round(sentiment_neutral / sentiment_total * 100)) + '%;border-radius:7px;'"/>
+                                             t-att-style="'width:' + str(round((sentiment_neutral or 0) / (sentiment_total or 1) * 100)) + '%;border-radius:7px;'"/>
                                     </div>
                                 </div>
                                 <hr/>
