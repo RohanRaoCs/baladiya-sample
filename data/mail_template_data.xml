@@ -5,7 +5,7 @@
     <record id="mail_template_request_submitted" model="mail.template">
         <field name="name">Baladiya: Request Submitted</field>
         <field name="model_id" ref="model_baladiya_service_request"/>
-        <field name="subject">Your Service Request {{ object.name }} Has Been Submitted</field>
+        <field name="subject">Service Request {{ object.name }} — Confirmation</field>
         <field name="email_from">{{ user.email_formatted }}</field>
         <field name="email_to">{{ object.citizen_id.email }}</field>
         <field name="body_html" type="html">
@@ -13,8 +13,8 @@
     <table width="100%" style="max-width:600px;margin:0 auto;background:#ffffff;border:1px solid #e0e0e0;">
         <tr>
             <td style="background:#1565C0;padding:24px;text-align:center;">
-                <h1 style="color:#ffffff;margin:0;font-size:24px;">🏛️ Baladiya Municipality</h1>
-                <p style="color:#bbdefb;margin:4px 0 0 0;font-size:14px;">Smart Municipality Services — Sharjah</p>
+                <h1 style="color:#ffffff;margin:0;font-size:22px;">Baladiya Municipality</h1>
+                <p style="color:#bbdefb;margin:4px 0 0 0;font-size:13px;">Smart Municipality Services — Sharjah, UAE</p>
             </td>
         </tr>
         <tr>
@@ -24,7 +24,7 @@
                     Dear <strong>{{ object.citizen_id.name }}</strong>,
                 </p>
                 <p style="color:#333;line-height:1.6;">
-                    Your service request has been submitted and is now being processed. Here are your request details:
+                    Your service request has been submitted and is now under review. Please find your request details below:
                 </p>
                 <table style="width:100%;border-collapse:collapse;margin:16px 0;">
                     <tr>
@@ -48,12 +48,12 @@
                         <td style="padding:8px 12px;border:1px solid #bbdefb;">{{ object.category_id.estimated_days }} working days</td>
                     </tr>
                 </table>
-                <div style="background:#fff8e1;border:1px solid #ffecb3;border-radius:4px;padding:16px;margin:16px 0;">
-                    <strong>📋 Save your tracking code:</strong> <span style="font-size:20px;color:#1565C0;font-weight:bold;">{{ object.tracking_code }}</span><br/>
+                <div style="background:#e3f2fd;border:1px solid #bbdefb;border-radius:4px;padding:16px;margin:16px 0;">
+                    <strong>Your tracking code:</strong> <span style="font-size:20px;color:#1565C0;font-weight:bold;">{{ object.tracking_code }}</span><br/>
                     <small style="color:#666;">Use this code to track your request status at any time on our portal.</small>
                 </div>
                 <p style="color:#666;font-size:13px;line-height:1.5;">
-                    You will receive email notifications as your request progresses through each stage.
+                    You will receive email notifications as your request progresses.
                     You can also check the status anytime by visiting our portal.
                 </p>
             </td>
@@ -69,11 +69,11 @@
         </field>
     </record>
 
-    <!-- ==================== REQUEST APPROVED ==================== -->
-    <record id="mail_template_request_approved" model="mail.template">
-        <field name="name">Baladiya: Request Approved</field>
+    <!-- ==================== REQUEST COMPLETED ==================== -->
+    <record id="mail_template_request_completed" model="mail.template">
+        <field name="name">Baladiya: Request Completed</field>
         <field name="model_id" ref="model_baladiya_service_request"/>
-        <field name="subject">Your Request {{ object.name }} Has Been Approved!</field>
+        <field name="subject">Service Request {{ object.name }} — Completed</field>
         <field name="email_from">{{ user.email_formatted }}</field>
         <field name="email_to">{{ object.citizen_id.email }}</field>
         <field name="body_html" type="html">
@@ -81,76 +81,21 @@
     <table width="100%" style="max-width:600px;margin:0 auto;background:#ffffff;border:1px solid #e0e0e0;">
         <tr>
             <td style="background:#1565C0;padding:24px;text-align:center;">
-                <h1 style="color:#ffffff;margin:0;font-size:24px;">🏛️ Baladiya Municipality</h1>
-                <p style="color:#bbdefb;margin:4px 0 0 0;font-size:14px;">Smart Municipality Services — Sharjah</p>
+                <h1 style="color:#ffffff;margin:0;font-size:22px;">Baladiya Municipality</h1>
+                <p style="color:#bbdefb;margin:4px 0 0 0;font-size:13px;">Smart Municipality Services — Sharjah, UAE</p>
             </td>
         </tr>
         <tr>
             <td style="padding:32px 24px;">
                 <div style="background:#e8f5e9;border:1px solid #c8e6c9;border-radius:8px;padding:20px;text-align:center;margin-bottom:24px;">
-                    <span style="font-size:48px;">✅</span>
-                    <h2 style="color:#2e7d32;margin:8px 0 0 0;">Request Approved</h2>
-                </div>
-                <p style="color:#333;line-height:1.6;">
-                    Dear <strong>{{ object.citizen_id.name }}</strong>,
-                </p>
-                <p style="color:#333;line-height:1.6;">
-                    We are pleased to inform you that your service request <strong>{{ object.name }}</strong>
-                    ({{ object.category_id.name }}) has been <strong style="color:#2e7d32;">approved</strong>.
-                </p>
-                <table style="width:100%;border-collapse:collapse;margin:16px 0;">
-                    <tr>
-                        <td style="padding:8px 12px;background:#e3f2fd;border:1px solid #bbdefb;font-weight:bold;width:40%;">Tracking Code</td>
-                        <td style="padding:8px 12px;border:1px solid #bbdefb;font-weight:bold;color:#1565C0;">{{ object.tracking_code }}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding:8px 12px;background:#e3f2fd;border:1px solid #bbdefb;font-weight:bold;">Approved By</td>
-                        <td style="padding:8px 12px;border:1px solid #bbdefb;">{{ object.approver_id.name }}</td>
-                    </tr>
-                </table>
-                <p style="color:#666;font-size:13px;line-height:1.5;">
-                    Your request will now proceed to the final completion stage. You will be notified once it is fully completed.
-                </p>
-            </td>
-        </tr>
-        <tr>
-            <td style="background:#f5f5f5;padding:16px 24px;text-align:center;font-size:12px;color:#999;">
-                Baladiya Smart Municipality — Sharjah, UAE
-            </td>
-        </tr>
-    </table>
-</div>
-        </field>
-    </record>
-
-    <!-- ==================== REQUEST COMPLETED ==================== -->
-    <record id="mail_template_request_completed" model="mail.template">
-        <field name="name">Baladiya: Request Completed</field>
-        <field name="model_id" ref="model_baladiya_service_request"/>
-        <field name="subject">Your Request {{ object.name }} Has Been Completed</field>
-        <field name="email_from">{{ user.email_formatted }}</field>
-        <field name="email_to">{{ object.citizen_id.email }}</field>
-        <field name="body_html" type="html">
-<div style="margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;">
-    <table width="100%" style="max-width:600px;margin:0 auto;background:#ffffff;border:1px solid #e0e0e0;">
-        <tr>
-            <td style="background:#1565C0;padding:24px;text-align:center;">
-                <h1 style="color:#ffffff;margin:0;font-size:24px;">🏛️ Baladiya Municipality</h1>
-                <p style="color:#bbdefb;margin:4px 0 0 0;font-size:14px;">Smart Municipality Services — Sharjah</p>
-            </td>
-        </tr>
-        <tr>
-            <td style="padding:32px 24px;">
-                <div style="background:#e3f2fd;border:1px solid #bbdefb;border-radius:8px;padding:20px;text-align:center;margin-bottom:24px;">
-                    <span style="font-size:48px;">🎉</span>
-                    <h2 style="color:#1565C0;margin:8px 0 0 0;">Request Completed</h2>
+                    <h2 style="color:#2e7d32;margin:0;">Request Completed</h2>
                 </div>
                 <p style="color:#333;line-height:1.6;">
                     Dear <strong>{{ object.citizen_id.name }}</strong>,
                 </p>
                 <p style="color:#333;line-height:1.6;">
                     Your service request <strong>{{ object.name }}</strong> ({{ object.category_id.name }})
-                    has been <strong style="color:#1565C0;">completed</strong> successfully.
+                    has been <strong style="color:#2e7d32;">completed</strong> successfully.
                 </p>
                 <table style="width:100%;border-collapse:collapse;margin:16px 0;">
                     <tr>
@@ -162,8 +107,8 @@
                         <td style="padding:8px 12px;border:1px solid #bbdefb;">{{ object.completion_date }}</td>
                     </tr>
                 </table>
-                <div style="background:#e8f5e9;border:1px solid #c8e6c9;border-radius:4px;padding:16px;margin:16px 0;text-align:center;">
-                    <strong>📝 We value your feedback!</strong><br/>
+                <div style="background:#e3f2fd;border:1px solid #bbdefb;border-radius:4px;padding:16px;margin:16px 0;text-align:center;">
+                    <strong>We value your feedback</strong><br/>
                     <p style="margin:8px 0 0 0;font-size:13px;color:#666;">
                         Please visit the portal to rate your experience and provide feedback on this service.
                     </p>

@@ -201,6 +201,7 @@
                             <field name="citizen_id"/>
                             <field name="category_id"/>
                             <field name="department_id"/>
+                            <field name="fee_amount" string="Service Fee (AED)"/>
                             <field name="priority" widget="priority"/>
                             <field name="district"/>
                             <field name="address"/>
@@ -214,8 +215,6 @@
                                    decoration-success="sla_status == 'on_track'"
                                    decoration-warning="sla_status == 'at_risk'"
                                    decoration-danger="sla_status == 'overdue'"/>
-                            <field name="fee_amount"/>
-                            <field name="fee_paid"/>
                         </group>
                     </group>
 

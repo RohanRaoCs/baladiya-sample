@@ -92,7 +92,7 @@
                                     <t t-if="category.required_documents">
                                         <hr/>
                                         <strong>Required Documents:</strong>
-                                        <pre class="mb-0 small" style="white-space:pre-wrap;" t-esc="category.required_documents"/>
+                                        <div class="small mt-1" t-esc="category.required_documents"/>
                                     </t>
                                 </div>
 
@@ -183,9 +183,9 @@
                         <div class="card shadow-sm text-center">
                             <div class="card-body p-5">
                                 <div class="mb-4">
-                                    <span style="font-size:64px;">✅</span>
+                                    <i class="fa fa-check-circle fa-4x text-success"/>
                                 </div>
-                                <h3 class="baladiya-heading">Request Submitted Successfully!</h3>
+                                <h3 class="baladiya-heading">Request Submitted Successfully</h3>
                                 <p class="text-muted">Your request has been received and is being processed.</p>
 
                                 <div class="baladiya-tracking-box my-4">
@@ -369,13 +369,10 @@
                                     <tr>
                                         <td class="fw-bold">Fee</td>
                                         <td>
-                                            <t t-esc="req.fee_amount"/> AED
-                                            <t t-if="req.fee_paid">
-                                                <span class="badge text-bg-success">Paid</span>
+                                            <t t-if="req.fee_amount > 0">
+                                                <t t-esc="req.fee_amount"/> AED
                                             </t>
-                                            <t t-else="">
-                                                <span class="badge text-bg-warning">Pending</span>
-                                            </t>
+                                            <t t-else="">Free</t>
                                         </td>
                                     </tr>
                                 </table>

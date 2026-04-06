@@ -106,16 +106,11 @@
 
 /* ==================== STATUS BADGES ==================== */
 
-.baladiya-badge-draft { background: #9E9E9E; color: #fff; }
-.baladiya-badge-submitted { background: #1976D2; color: #fff; }
+.baladiya-badge-new { background: #1976D2; color: #fff; }
 .baladiya-badge-under_review { background: #7B1FA2; color: #fff; }
 .baladiya-badge-in_progress { background: #F57C00; color: #fff; }
-.baladiya-badge-inspection { background: #00838F; color: #fff; }
-.baladiya-badge-pending_approval { background: #FF8F00; color: #fff; }
-.baladiya-badge-approved { background: #2E7D32; color: #fff; }
 .baladiya-badge-done { background: #1B5E20; color: #fff; }
 .baladiya-badge-rejected { background: #C62828; color: #fff; }
-.baladiya-badge-cancelled { background: #616161; color: #fff; }
 
 /* ==================== PROGRESS STEPPER ==================== */
 

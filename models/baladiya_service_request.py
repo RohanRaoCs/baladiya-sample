@@ -89,8 +89,6 @@ class BaladiyaServiceRequest(models.Model):
     fee_amount = fields.Float(
         string='Fee Amount (AED)', compute='_compute_fee_amount',
         store=True, readonly=False, digits=(16, 2))
-    fee_paid = fields.Boolean(string='Fee Paid', default=False, tracking=True)
-
     # --- Attachments ---
     attachment_ids = fields.Many2many('ir.attachment', string='Attachments')
     document_count = fields.Integer(compute='_compute_document_count')
@@ -207,9 +205,7 @@ class BaladiyaServiceRequest(models.Model):
                 'state': 'under_review',
                 'submission_date': fields.Date.context_today(self),
             })
-            template = self.env.ref('baladiya.mail_template_request_submitted', raise_if_not_found=False)
-            if template:
-                template.send_mail(rec.id, force_send=False)
+            rec._post_branded_message('submitted')
             # AI: Run all 3 brains at once (never block on failure)
             try:
                 rec.action_ai_triage()
@@ -266,9 +262,7 @@ class BaladiyaServiceRequest(models.Model):
                 'state': 'done',
                 'completion_date': fields.Date.context_today(self),
             })
-            template = self.env.ref('baladiya.mail_template_request_completed', raise_if_not_found=False)
-            if template:
-                template.send_mail(rec.id, force_send=False)
+            rec._post_branded_message('completed')
 
     def action_reject(self):
         """Opens AI Draft wizard pre-set to rejection."""
@@ -309,6 +303,26 @@ class BaladiyaServiceRequest(models.Model):
             'view_mode': 'list,form',
             'domain': [('id', 'in', self.attachment_ids.ids)],
         }
+
+    # ==================== NOTIFICATIONS ====================
+
+    def _post_branded_message(self, msg_type):
+        self.ensure_one()
+        if msg_type == 'submitted':
+            body = _(
+                'Your request %(name)s has been submitted and is under review. '
+                'Tracking code: %(code)s.',
+                name=self.name, code=self.tracking_code,
+            )
+        elif msg_type == 'completed':
+            body = _(
+                'Your request %(name)s has been completed. '
+                'Tracking code: %(code)s.',
+                name=self.name, code=self.tracking_code,
+            )
+        else:
+            return
+        self.message_post(body=body, message_type='comment', subtype_xmlid='mail.mt_note')
 
     # ==================== AI ACTIONS ====================
 
