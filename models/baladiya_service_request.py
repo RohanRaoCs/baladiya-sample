@@ -396,6 +396,34 @@ class BaladiyaServiceRequest(models.Model):
             'context': {'default_request_id': self.id},
         }
 
+    def action_bulk_ai_triage(self):
+        """Bulk AI triage: process all under_review requests not yet triaged."""
+        pending = self.env['baladiya.service.request'].search([
+            ('state', '=', 'under_review'),
+            ('ai_triage_done', '=', False),
+        ])
+        if not pending:
+            raise UserError(_('No pending requests to triage. All under-review requests have already been processed by AI.'))
+        count = 0
+        for req in pending:
+            try:
+                req.action_ai_triage()
+                req.action_ai_generate_insights()
+                count += 1
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).warning('Bulk triage failed for %s: %s', req.name, e)
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'message': _('AI triaged %d request(s) successfully.') % count,
+                'type': 'success',
+                'sticky': False,
+                'next': {'type': 'ir.actions.act_window_close'},
+            },
+        }
+
     @api.model
     def action_open_ai_dashboard(self):
         """Brain 4: Compute AI predictions and return dashboard action."""

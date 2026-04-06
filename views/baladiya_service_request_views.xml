@@ -399,6 +399,16 @@
         </field>
     </record>
 
+    <!-- ==================== BULK AI TRIAGE ACTION ==================== -->
+    <record id="action_bulk_ai_triage" model="ir.actions.server">
+        <field name="name">AI Triage All Pending</field>
+        <field name="model_id" ref="model_baladiya_service_request"/>
+        <field name="binding_model_id" ref="model_baladiya_service_request"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_bulk_ai_triage()</field>
+    </record>
+
     <record id="action_service_request_dashboard" model="ir.actions.act_window">
         <field name="name">Dashboard</field>
         <field name="res_model">baladiya.service.request</field>

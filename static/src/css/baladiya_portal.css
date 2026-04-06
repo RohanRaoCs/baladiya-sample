@@ -184,6 +184,62 @@
     font-weight: 600;
 }
 
+/* ==================== STATS BANNER ==================== */
+
+.baladiya-stats-banner {
+    background: linear-gradient(135deg, #1565C0 0%, #0D47A1 60%, #1a237e 100%);
+    border-radius: 16px;
+    padding: 0;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(21, 101, 192, 0.35);
+}
+
+.baladiya-stat-item {
+    padding: 24px 16px;
+    text-align: center;
+    border-right: 1px solid rgba(255, 255, 255, 0.15);
+    position: relative;
+}
+
+.baladiya-stat-item:last-child {
+    border-right: none;
+}
+
+.baladiya-stat-number {
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1;
+    margin-bottom: 6px;
+    font-variant-numeric: tabular-nums;
+}
+
+.baladiya-stat-label {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.75);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+/* ==================== WHATSAPP BUTTON ==================== */
+
+.baladiya-btn-whatsapp {
+    background-color: #25D366 !important;
+    border-color: #25D366 !important;
+    color: #fff !important;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.baladiya-btn-whatsapp:hover {
+    background-color: #128C7E !important;
+    border-color: #128C7E !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35);
+}
+
 /* ==================== RESPONSIVE ==================== */
 
 @media (max-width: 768px) {

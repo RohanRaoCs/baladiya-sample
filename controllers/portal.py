@@ -17,10 +17,35 @@ class BaladiyaPortal(CustomerPortal):
 
     @http.route('/my/services', type='http', auth='user', website=True)
     def portal_services_catalog(self, **kw):
+        Req = request.env['baladiya.service.request'].sudo()
+        total = Req.search_count([])
+        total_resolved = Req.search_count([('state', '=', 'done')])
+        active = Req.search_count([('state', 'in', ('new', 'under_review', 'in_progress'))])
+        # Average processing days for completed requests
+        done_requests = Req.search([
+            ('state', '=', 'done'),
+            ('submission_date', '!=', False),
+            ('completion_date', '!=', False),
+        ])
+        avg_days = 0
+        if done_requests:
+            days_list = [
+                (r.completion_date - r.submission_date).days
+                for r in done_requests
+                if r.completion_date and r.submission_date
+            ]
+            avg_days = round(sum(days_list) / len(days_list), 1) if days_list else 0
+
         categories = request.env['baladiya.service.category'].sudo().search([])
         return request.render('baladiya.portal_services_catalog', {
             'categories': categories,
             'page_name': 'services',
+            'stats': {
+                'total': total,
+                'total_resolved': total_resolved,
+                'active': active,
+                'avg_days': avg_days,
+            },
         })
 
     # ==================== APPLICATION FORM ====================
